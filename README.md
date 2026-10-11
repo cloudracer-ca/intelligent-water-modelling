@@ -37,7 +37,7 @@ Read these only if you want more.
 
 ## The example models
 
-All are invented. There is no code to install or run in this repository.
+All are invented. Nothing needs installing to read this resource; the advanced page includes illustrative Python.
 
 - [examples/starter-model.yaml](examples/starter-model.yaml): about 30 lines. Start here: copy it and replace the
   names with your own.

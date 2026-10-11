@@ -1,25 +1,37 @@
 # Root cause and anomaly detection, without guessing
 
-*Optional. About 8 minutes. For the engineer or integrator who builds it, and whoever judges what they built.*
+*Optional. About 12 minutes. Advanced: you do not need this page to get started. For the engineer or integrator
+who builds it, and whoever judges what they built.*
 
-[An incident, followed through the graph](an-incident-followed-through.md) showed **what** a model-based finding
-looks like. This page shows **how** one is produced: the parts, where they run, three ways to build them, and
-the open-source and commercial options for each part.
+The [incident page](an-incident-followed-through.md) shows a finding. Here is how to build one with fixed rules,
+history and a reviewed graph. Findings carry their paths and supporting values.
 
-Everything here is deterministic. There is no AI in the finding. The same data and the same model always give
-the same answer, and every answer carries the path and the numbers that produced it.
-
-## Two jobs, one graph
+## Three jobs, one graph
 
 | Job | The question | What it uses |
 |---|---|---|
 | **Anomaly detection** | "Is this value, or this state, abnormal right now?" | Fixed rules on the live data, with limits taken from the model |
-| **Root cause** | "What upstream could have caused this?" | The model's relationships, followed **upstream**, and the history in a time window |
-| **Blast radius** | "What downstream will feel this, and how soon?" | The same relationships, followed **downstream** |
+| **Root cause** | "What, in either direction, could have caused this?" | The model's relationships, followed in the direction the investigation names, and the history in a time window |
+| **Blast radius** | "What may be affected under this propagation assumption?" | Forward reachability; timing only with reviewed delay assumptions |
 
-Detection raises a **symptom**. Root cause walks back from the symptom to find what started it. Blast radius
-walks forward from it to warn whoever is next in line. The last two are the same graph read in opposite
-directions.
+Detection raises a **symptom**. Root cause looks for what started it. Blast radius lists potentially affected assets.
+
+## Which way to walk
+
+On this page, **downstream** means following the relationship arrows as they are written in the model, from
+source to target. **Upstream** means following them backwards. The cause is not always upstream. The sewage
+pumps are downstream of the wet well, yet when they fail, the effect shows upstream, as a rising level.
+
+Some examples, not a complete set of rules:
+
+| Symptom | Where to look |
+|---|---|
+| A main isolated, loss of supply | Upstream: something that feeds or protects it failed |
+| Low pressure | Upstream, for a failed supply. Downstream too: excess demand, or a leak |
+| High level, backing up, an overflow | Downstream: what should take the flow away failed. Upstream too: too much coming in |
+
+So each kind of investigation names its direction, or both, and the model can only answer the directions it
+represents.
 
 ## The architecture
 
@@ -33,12 +45,12 @@ flowchart LR
   C --> L["Detection limits<br/>per measurement"]
   U --> D["Detection rules<br/>on the stream"]
   L --> D
-  D -->|symptom| R["Root cause<br/>walk upstream"]
-  D -->|symptom| X["Blast radius<br/>walk downstream"]
+  D -->|symptom| R["Root cause<br/>walk the named direction"]
+  D -->|symptom| X["Blast radius<br/>walk forwards"]
   G --> R
   G --> X
-  H -->|values in a time window| R
-  R --> F["Finding<br/>cause, path, numbers"]
+  H -->|episodes in a fixed window| R
+  R --> F["Finding<br/>candidates, path, numbers"]
   X --> F
   F -->|its own topic family| U
   F --> J["Journal and screens"]
@@ -47,16 +59,11 @@ flowchart LR
   A -.-> P
 ```
 
-Four things to notice:
-
-1. **The model files are the source of truth.** The graph store, the in-memory graph and the detection limits
-   are all built from them, so none can drift from the others. This is the [one rule](choosing-tools.md#the-one-rule).
-2. **The analysis works on an in-memory copy of the graph.** Walking a few hundred relationships in memory is
-   quick, and there is no query service to fail mid-incident. A graph store is for people who want to explore.
-3. **Findings go back to the broker on their own topic family**, like any [derived value](trusting-the-data.md#derived-data-values-calculated-from-other-values),
-   and are kept in an append-only journal, so a review months later sees exactly what was said and why.
-4. **The assistant sits outside the evidence path.** The dotted lines mean it reads the finding, and never
-   feeds anything back into it.
+Build the graph and limits from the same reviewed model version ([one rule](choosing-tools.md#the-one-rule));
+confirm every tool loaded it. Analysis walks its in-memory copy. Publish findings on their own
+[topic family](trusting-the-data.md#derived-data-values-calculated-from-other-values) and retain an append-only
+journal. An [assistant](an-incident-followed-through.md#where-ai-fits) may explain findings, labelled as
+explanation; its words are never evidence or analysis input. A person decides.
 
 ## Detection: rules a person can read
 
@@ -64,36 +71,40 @@ Start with the checks on [Trusting the data](trusting-the-data.md#data-quality-i
 stale, flatline, rate of change and source status. Those catch bad *data*. Detecting an abnormal *process* adds
 a few more:
 
-| Rule | What it catches | Note |
-|---|---|---|
-| **Fixed limit with a deadband** | A value past an operating limit | The deadband stops a value hovering at the limit from alarming over and over |
-| **State-aware limit** | A value that is only wrong in some states | A zero flow is normal when the pump is stopped, and abnormal when it is running |
-| **Change of state** | A pump stops, a protection becomes unavailable, a main is isolated | Often the most useful symptom of all |
-| **Moving average against a baseline (EWMA)** | A slow drift that never crosses a fixed limit | [NIST: EWMA control charts](https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm) |
-| **Cumulative sum (CUSUM)** | A small, steady shift in the average | [NIST: CUSUM control charts](https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc323.htm) |
+| Rule | Use |
+|---|---|
+| **Fixed limit with deadband** | Operating limit; deadband prevents repeated alarms near it |
+| **State-aware limit** | Zero flow is normal when stopped, abnormal when running |
+| **State change** | Unexpected stop, lost protection, isolation |
+| **Exponentially weighted moving average (EWMA)** | Slow drift ([NIST](https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm)) |
+| **Cumulative sum (CUSUM)** | Small sustained mean shift ([NIST](https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc323.htm)) |
 
-Begin with the first three. They are easy to explain to an operator, and many incidents announce themselves
-with a change of state. Add the statistical rules once you trust the simpler ones.
+Begin with the first three: they are easy to explain. Add the statistical rules once you trust
+them. A statistical baseline must suit the operating state and the sampling: normal pump cycling and a planned
+stop are not faults.
 
 Every limit lives in the model, next to the measurement it applies to, with the person who agreed it. A rule
-that fires reports the value, the limit, the time and the rule's name. That is what makes it deterministic.
+that fires reports the value, the limit, the time and the rule's name, which makes the result auditable. Getting
+the same result every time also needs fixed rules, configuration, starting state and inputs.
+The example models carry quality limits only (the believable range, and how long before a value is stale or
+stuck); operating and alarm limits would be added the same way.
 
-## Root cause: walking upstream
+## Root cause: walking the graph
 
 The model says which relationships can carry a fault. In [the water example](../../examples/example-plant/2-plant.yaml),
 *feeds*, *supplies*, *supplies air to* and *protects* can. *Shown on* and *governed by* cannot: a drawing does not
 cause a pump to trip. Choosing that list is an engineering decision, and it belongs in the model's review.
 
-The sketch below builds the graph from the example's plant file and finds every upstream asset that had an
-abnormal event in the look-back window, earliest first. It is illustrative, written for this page, and
-released under the [examples' MIT licence](../../examples/LICENSE). It uses
-[NetworkX](https://networkx.org/), an open-source graph library for Python.
+The sketch below builds the graph from a plant file and lists the assets in one direction that were abnormal
+during a fixed window, earliest first. It uses [NetworkX](https://networkx.org/documentation/stable/), an open-source graph library
+for Python, and is covered by this page's CC BY 4.0 licence, like the rest of the page.
 
 ```python
 import networkx as nx
 import yaml
 
-# Which relationship types can carry a fault. An engineering decision, reviewed with the model.
+# Shorthand for this page. In an implementation this would be reviewed metadata on each relationship type in
+# 1-types.yaml, supplied by the compiler. The example files carry no such metadata today.
 CAUSAL = {"Feeds", "Supplies", "SuppliesAir", "Protects"}
 
 def load_graph(plant_file):
@@ -101,88 +112,117 @@ def load_graph(plant_file):
     with open(plant_file) as f:
         plant = yaml.safe_load(f)
     g = nx.MultiDiGraph()  # allows two different relationships between the same pair of assets
+    g.add_nodes_from(plant["assets"])  # every declared asset, even one with no causal relationship
     for rel in plant["relationships"]:
         if rel["type"] in CAUSAL:
             g.add_edge(rel["source"], rel["target"], type=rel["type"])
     return g
 
-def candidate_causes(g, symptom, abnormal, since):
-    """Upstream assets with an abnormal event since `since`, earliest first, each with its path."""
+def candidate_causes(g, asset, episodes, window, direction):
+    """Assets to investigate, not established causes, earliest first.
+
+    `asset` owns the symptom (WET_WELL, not WET_WELL_HIGH_LEVEL). `episodes` maps an asset to its abnormal
+    episodes, prepared from the history for this window: {"event", "onset", "cleared"}, UTC datetimes,
+    "cleared" None while still abnormal. `window` is (start, end); end is the symptom's time.
+    """
+    if direction == "upstream":
+        others = nx.ancestors(g, asset)
+    elif direction == "downstream":
+        others = nx.descendants(g, asset)
+    else:
+        raise ValueError(f"direction must be 'upstream' or 'downstream', not {direction!r}")
+    start, end = window
     found = []
-    for asset in nx.ancestors(g, symptom):
-        event = abnormal.get(asset)  # the earliest abnormal event per asset, read from the history
-        if event and event["time"] >= since:
-            found.append({"cause": asset, "event": event,
-                          "path": nx.shortest_path(g, asset, symptom)})
-    # Sort by time, then by name, so a tie always comes out in the same order.
-    return sorted(found, key=lambda f: (f["event"]["time"], f["cause"]))
+    for other in others:
+        for ep in episodes.get(other, []):
+            # Overlaps the window: began by its end, and had not cleared before its start.
+            if ep["onset"] <= end and (ep["cleared"] is None or ep["cleared"] >= start):
+                path = (nx.shortest_path(g, other, asset) if direction == "upstream"
+                        else nx.shortest_path(g, asset, other))
+                found.append({"candidate": other, "episode": ep, "path": path})
+    # Sort by time, then by fixed keys, so a tie always comes out in the same order.
+    return sorted(found, key=lambda f: (f["episode"]["onset"], f["candidate"], f["episode"]["event"]))
 ```
 
-Run against the example with the invented incident's events, the symptom *Main A isolated* gives four
-candidates. The earliest is the compressor, by the path *compressor → surge vessel → Main A*. The turbidity alarm
-and the pump stop come later, on the other path *filter → clearwell → pump → Main A*. A good finding names both:
-the pump stop **triggered** the surge, and the compressor fault **removed the protection** against it.
+**What the sketch assumes.** The caller resolves an alarm to the asset that owns it. `ancestors` and
+`descendants` leave out that asset, so checking it for a local failure is a separate step. Both directions means
+two calls, then removing duplicates. `episodes` was read from the history for a fixed window: it includes states
+already abnormal when the window opened, keeps repeat faults as separate episodes, each with its recovery time, and
+uses comparable UTC times. The window's end is a hard cut-off: nothing after the symptom is offered as its cause.
 
-The finding then adds the timing between each step, from the stored history, and suppresses the downstream
-alarms, each with the relationship that justifies hiding it.
+**What the path means.** `shortest_path` returns one shortest list of names: an illustrative connectivity path,
+not the route the fault took. It drops which relationship each step used (the wastewater screen both *feeds* and
+*protects* the grit chamber). A finding keeps the typed relationships it relies on, with evidence for each. A
+downstream path runs in relationship order, symptom to candidate; that arrow does not claim the symptom caused it.
 
-## Blast radius: walking downstream
+### Run against both examples
 
-The same graph, read forwards, says who is affected next:
+The sketches were run in October 2026 with NetworkX 3.6.1, PyYAML 6.0.3 and Python 3.12.3, on these invented
+events (one day, UTC):
+
+| Example, symptom, window, direction | Episodes given | Result, earliest first |
+|---|---|---|
+| Water: Main A isolated at 06:15; 06:00–06:15; upstream | Compressor fail-to-start 05:40, still active; surge protection unavailable 05:41, still active; filter 1 high turbidity 06:08; high-lift pump 2 tripped 05:30, cleared 05:35, stopped again 06:12; pump 1 stopped 06:12; filter 2 high turbidity 06:30 | Compressor, surge vessel, filter 1, pump 1, pump 2 (its 06:12 stop). Not pump 2's 05:30 trip (cleared before the window) or filter 2 (after the cut-off) |
+| Wastewater: wet well high level at 03:20; 03:00–03:20; downstream | Sewage pump 1 tripped 03:05; pump 2 fail-to-start 03:06; forcemain low pressure 03:07 | Pump 1, pump 2, forcemain |
+| Wastewater: the same, upstream | The same | None: nothing feeds the wet well in the model |
+
+Also checked: `direction="sideways"` raises an error, and filter 1's turbidimeter, which has only a *monitors*
+relationship, returns no candidates instead of an error.
+
+### Candidates are not causes
+
+Reachability and order in time say what to investigate, not what caused it. The forcemain's low pressure is a
+candidate, yet it is a consequence of the pumps stopping. Confirming a cause needs a plausible failure
+mechanism, operating states in which it could act, trustworthy measurements, timing consistent with it, and
+review by an operator or engineer. "Insufficient evidence" is an acceptable answer.
+
+In the water result, a good finding separates roles: the pump stop **triggered** the surge, and the compressor
+fault **removed the protection** against it, a contributing condition. In the wastewater example, too much
+inflow cannot be found at all: no inflow source is modelled.
+
+The service then **groups** related findings into one incident, with the timing between steps, and keeps every
+underlying event. Grouping is not suppression. A relationship alone never justifies hiding an alarm that needs
+its own response, such as a wet well high-high level. Real suppression is designed conditional alarm logic, with
+approved conditions, rules for applying and releasing it, and an audit trail, inside an alarm-management process
+([ISA, on managing and optimising alarms](https://www.isa.org/intech-home/2017/september-october/features/from-managing-to-optimizing-alarms)).
+
+## Blast radius: walking forwards
+
+The same graph, read forwards, gives one example of who may be affected next:
 
 ```python
 def blast_radius(g, asset):
-    """Everything downstream of `asset` along a causal relationship."""
+    """Everything reachable forwards from `asset` along a causal relationship."""
     return sorted(nx.descendants(g, asset))
 ```
 
-In the example, a problem at the surge vessel reaches Main A, Reservoir A and Zone A. If the model carries a
-travel or response time on each relationship (the example does not), a weighted shortest-path search gives the
-earliest each one could be affected, which turns the list into an early warning.
+In the water example, a problem at the surge vessel reaches Main A, Reservoir A and Zone A: what is
+**potentially** affected, if effects travel with the arrows. It is not complete: `blast_radius(g, "SP_01")` in
+the wastewater example omits the wet well that fills when the pump stops. With a reviewed travel time on each
+relationship (the examples have none), a weighted shortest-path search estimates the earliest each could be
+affected, valid only while those delays add up as assumed.
 
 ## Three ways to build it
 
-All three keep the model in files and the analysis on an in-memory graph. They differ in what else holds it.
+Start with files and an in-memory graph. Add a graph database or asset platform when people need exploration,
+screens or access control ([options](graph-database.md)). All patterns derive from reviewed files; product edits
+must return through a committed, reviewed export before rebuilding.
 
-1. **Files and an in-memory graph.** The compiler checks the model; the analysis service loads it into a graph
-   library at start-up. Nothing else to run: the [graph-library option](graph-database.md), and a good first step.
-2. **An open-source graph database beside it.** The compiler also loads a graph database, so engineers can ask
-   their own questions of the model. The database is rebuilt from the files, never edited directly.
-3. **A commercial graph or asset platform beside it.** A product holds the model with screens, access control,
-   connectors and often an assistant. The analysis still loads its own copy, from the files or from the
-   product's export. If your team edits the model in the product, its export must be committed and reviewed like
-   any other change, or the files are no longer the source of truth.
-
-For pattern 2 in [TypeDB](https://typedb.com/docs/), the same upstream search can be written in the database's
-own query language. TypeDB 3 does this with [*functions*](https://typedb.com/docs/typeql-reference/functions/functions-vs-rules/),
-which replaced the *rules* of earlier versions; examples written for older versions will not run on it.
-
-## Open source or commercial: a comparison
-
-| | Open source (patterns 1 and 2) | Commercial (pattern 3) |
-|---|---|---|
-| **Who maintains it** | You, or an integrator you hire. The project's community fixes the library | The vendor maintains the product; you maintain the model and the rules |
-| **Skills needed** | Python or similar, Git, and someone who understands graphs | The product's own training; less programming, more configuration |
-| **Governance and versions** | Git gives review, history and rollback | Depends on the product. Some keep every change as a version; check that you can see who changed what |
-| **Auditability** | Every line of the analysis can be read. You must build the journal | Often a built-in audit trail; the analysis inside it may be harder to inspect |
-| **Scale** | Ample for models the size of the examples here; measure it at your own size. A database adds room to grow | Built for many users and large models; ask to see it at your size |
-| **Support** | Community forums, or a support contract from a third party | A vendor contract with a named term |
-| **Lock-in and exit** | Low: the files are yours and the libraries are interchangeable with some rework | Varies. Test a full export and a rebuild from it before you depend on it |
-| **Licence model** | Open-source licences (BSD, Apache, MPL, GPL); read each one's obligations | A commercial agreement; the vendor's terms govern |
-
-Neither column is better. A small team with one Python-literate engineer can go a long way with the first. A team
-that wants screens, support and access control, and has no programmer, may be better served by the second. Some
-end up with both: a commercial platform for people, and a small open-source service for the finding of record.
+All three patterns need an analysis service unless a product demonstrates the required causal analysis.
+Commercial tools may reduce configuration and screen-building work; you still own the model and rules. Test a
+full export and rebuild. For maintenance, audit and licence checks, see [Build or buy?](build-or-buy.md) and
+[Choosing tools](choosing-tools.md#fifteen-questions-to-ask).
 
 ## Products by role
 
-Examples as of October 2026, not recommendations, and not a complete list. None was tested for this page.
+Product examples checked October 2026; not recommendations or product evaluations. Commercial licences: the
+vendor's terms govern.
 
 | Role | Open source | Commercial |
 |---|---|---|
-| **In-memory graph library** | [NetworkX](https://networkx.org/) (BSD-3-Clause); [rustworkx](https://www.rustworkx.org/) (Apache-2.0), built for speed, with a different API: see its [guide for NetworkX users](https://www.rustworkx.org/networkx.html) | Rarely needed: the libraries are the usual choice |
-| **Graph database** | [TypeDB](https://github.com/typedb/typedb) Community Edition (MPL-2.0); [Neo4j](https://neo4j.com/licensing/) Community Edition (GPLv3) | Neo4j Enterprise Edition; [Timebase Atlas](https://hub.docker.com/r/timebase/atlas), a knowledge model for industrial data with Cypher queries, a REST API and i3X |
-| **Asset model with built-in analytics** | Usually assembled from the parts on this page | [AVEVA PI Asset Framework](https://docs.aveva.com/bundle/pi-server-f-af-pse/page/1021923.html), whose asset analytics can create *event frames* (records of an event with a start, an end and the assets involved) |
+| **In-memory graph library** | [NetworkX](https://networkx.org/) (BSD-3-Clause); [rustworkx](https://www.rustworkx.org/) (Apache-2.0), with a [different API](https://www.rustworkx.org/networkx.html); benchmark your workload | Rarely needed |
+| **Graph database** | [TypeDB](https://github.com/typedb/typedb) Community Edition (MPL-2.0); TypeDB 3 uses [*functions*](https://typedb.com/docs/typeql-reference/functions/functions-vs-rules/) instead of rules. [Neo4j](https://neo4j.com/licensing/) Community Edition (GPLv3) | Neo4j Enterprise Edition; [Timebase Atlas](https://hub.docker.com/r/timebase/atlas), a knowledge model for industrial data with Cypher queries, a REST API and i3X |
+| **Asset model with built-in analytics** | Usually assembled from the parts on this page | [AVEVA PI Asset Framework](https://docs.aveva.com/bundle/pi-server-f-af-pse/page/1021923.html): analytics create event frames (event interval and involved assets). [Canary](https://helpcenter.canarylabs.com/t/m1ypq4h/calcs-events): Views asset models and Calculation service create events per asset |
 | **Detection rules on the stream** | [eKuiper](https://github.com/lf-edge/ekuiper) (Apache-2.0), SQL rules over MQTT for the edge; [Apache Flink](https://flink.apache.org/) (Apache-2.0), for large streams | The analytics built into your historian or data platform |
 
 For an assistant that helps *build* the model, see [the one-value page](one-value-followed-through.md#products-as-examples-only). It plays
@@ -190,38 +230,15 @@ no part in the finding.
 
 ## Pitfalls
 
-- **Loops in the plant.** Recirculation and recycle lines make cycles in the graph. Library functions like
-  `ancestors` and `descendants` keep a list of what they have visited, so they finish; a search you write
-  yourself must do the same. A cycle also means "upstream" can include the symptom's own outputs, so the
-  timing has to decide what came first.
-- **Missing starting states.** Many systems send a value only when it changes. If the analysis starts after a
-  pump stopped, it never saw the stop. Read the last known state of every event from the history at start-up.
-- **A stale graph.** If a main is valved out or a pump is retired and the model is not updated, the walk follows
-  a path that no longer exists. Catch it with the [drift checks](schema-drift.md).
-- **The wrong time window.** Too short and the root cause is missed (in the example, the first sign was a work
-  order two weeks before the break). Too long and unrelated events crowd in. Set the window per kind of
-  investigation, in the model, and show it in the finding.
-- **One incident at a time.** A look-back assumes one incident. Two overlapping ones can borrow each other's
-  events. Say so in the finding when candidates come from more than one chain.
-- **Alarm floods.** During a flood, detection must not raise a symptom for every alarm. Group alarms on the same
-  path, and suppress the consequences with a recorded reason ([ISA-18.2](https://www.isa.org/standards-and-publications/isa-standards/list-of-all-isa-standards)
-  covers flood management).
-- **Ties.** Two events with the same timestamp must always sort the same way, or the same data gives two
-  different findings. Sort by time, then by a fixed key.
-
-## Where AI fits
-
-The same place as on the [incident page](an-incident-followed-through.md#where-ai-fits): **after** the finding,
-never in it. An assistant can read the finding and explain it in plain words. It must say it is explaining;
-its words are never evidence, never published as a finding and never fed back into the analysis. A person decides.
-
-## References
-
-Checked in October 2026. NetworkX [documentation](https://networkx.org/documentation/stable/) (BSD-3-Clause);
-rustworkx [for NetworkX users](https://www.rustworkx.org/networkx.html); TypeDB [repository and licence](https://github.com/typedb/typedb)
-and [functions vs rules](https://typedb.com/docs/typeql-reference/functions/functions-vs-rules/); Neo4j [licensing](https://neo4j.com/licensing/);
-Timebase Atlas [description](https://hub.docker.com/r/timebase/atlas); AVEVA PI Server [event frames](https://docs.aveva.com/bundle/pi-server-f-af-pse/page/1021923.html);
-[eKuiper](https://github.com/lf-edge/ekuiper); [Apache Flink](https://flink.apache.org/); the NIST/SEMATECH e-Handbook of Statistical
-Methods on [EWMA](https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm) and [CUSUM](https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc323.htm).
+- **Loops in the plant.** Recycle lines make cycles. `ancestors` and `descendants` track what they have
+  visited, so they finish; a search you write must do the same. In a cycle, "upstream" can include the symptom's
+  own outputs, so timing decides what came first. Each relationship family being free of loops does not make the
+  combined graph free of them; the examples have none. Giving a return flow its own relationship type
+  makes its meaning clear, but leaving it out of the walk leaves the causes it carries unanswerable.
+- **A stale graph.** If a main is valved out and the model is not updated, the walk follows a path that no
+  longer exists. Catch it with the [drift checks](schema-drift.md).
+- **The wrong time window.** Choose the window per investigation and show it in the finding; preserve faults
+  active at its start. Retrieve supporting records, such as work orders, separately.
+- **One incident at a time.** Two overlapping incidents can borrow each other's events. Say so in the finding.
 
 Next: [One value, followed through](one-value-followed-through.md).

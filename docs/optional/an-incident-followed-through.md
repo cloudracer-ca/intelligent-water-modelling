@@ -46,8 +46,8 @@ flowchart LR
   F --> P["A person reviews it"]
 ```
 
-Alarms further down the same path can be **suppressed with a reason**: the relationship that justifies hiding
-each one is recorded. This follows the alarm-management practice in ISA-18.2.
+Related alarms can be grouped while every underlying event remains available. Suppression requires separately
+approved conditions, activation and release rules, and an audit trail.
 
 Because the rules are fixed, the same data always gives the same finding.
 
