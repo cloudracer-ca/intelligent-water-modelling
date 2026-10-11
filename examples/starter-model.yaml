@@ -1,0 +1,39 @@
+# A starter model: the smallest useful version.
+#
+# Everything here is invented. Copy this file, replace the names with your own,
+# and grow it one question at a time.
+#
+# YAML is used here because it is easy to read. The same model could be a spreadsheet,
+# a JSON file, or held in a modelling tool. The format matters less than having one
+# reviewed model.
+#
+# One file is enough to start. When it grows, split it into three, as the fuller example does
+# (examples/example-plant/): the types, the plant, and where each value lives.
+# Prefer a spreadsheet? See examples/workshop-kit/model-template.xlsx.
+#
+# The question this model answers: "what protects Main A, and what does that depend on?"
+
+types:                      # what kinds of things exist
+  Site:        {description: "A plant or a station"}
+  Area:        {description: "A part of a site"}
+  Pump:        {description: "A pump"}
+  Compressor:  {description: "An air compressor"}
+  SurgeVessel: {description: "A vessel that absorbs pressure surges"}
+  Main:        {description: "A section of transmission main"}
+
+assets:                     # the things you actually have
+  EXAMPLE_PLANT:  {type: Site}
+  HIGH_LIFT:      {type: Area,        parent: EXAMPLE_PLANT}
+  PUMP_1:         {type: Pump,        parent: HIGH_LIFT}
+  AIR_COMPRESSOR: {type: Compressor,  parent: HIGH_LIFT}
+  SURGE_VESSEL:   {type: SurgeVessel, parent: HIGH_LIFT}
+  MAIN_A:         {type: Main,        parent: EXAMPLE_PLANT}
+
+measurements:               # one value, described once
+  MAIN_A_PRESSURE:    {asset: MAIN_A,       unit: kPa}
+  SURGE_VESSEL_LEVEL: {asset: SURGE_VESSEL, unit: m}
+
+relationships:              # how things affect each other
+  - {source: PUMP_1,         type: Feeds,       target: MAIN_A}
+  - {source: AIR_COMPRESSOR, type: SuppliesAir, target: SURGE_VESSEL}
+  - {source: SURGE_VESSEL,   type: Protects,    target: MAIN_A}

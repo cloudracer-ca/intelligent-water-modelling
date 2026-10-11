@@ -1,0 +1,104 @@
+# Example Wastewater System, file 3 of 3: THE BINDINGS (where each value lives).
+#
+# This file is a LEARNING EXAMPLE. Every name, identifier, tag, topic and value in it is invented for this
+# repository. It does not describe any real plant, utility, equipment, control system or address.
+#
+# Who would own it: the automation or SCADA group. It changes when a system is replaced or a tag is renamed.
+#
+# In a real model, never share this file outside your organisation: addresses are sensitive.
+
+change: {date: 2026-10-10, approvedBy: Integration lead, typesVersion: 0.3.0,
+         reason: "Bind the new pump alarms and currents, the high-high level alarm and the screen differential level"}
+
+# Measurement topics follow the pattern
+#   example/telemetry/wastewater/{site}/{area}/{asset}/{key}
+measurements:
+  WET_WELL_LEVEL:
+    opcua:     {identifier: ExampleSps.WetWell.Level}
+    historian: {tag: EXAMPLE_SPS.WET_WELL.LEVEL}
+    mqtt:      {topic: example/telemetry/wastewater/EXAMPLE_SPS/PUMPING/WET_WELL/LEVEL}
+  FORCEMAIN_A_PRESSURE:
+    opcua:     {identifier: CollA.ForcemainA.Pressure}
+    historian: {tag: COLL_A.FORCEMAIN_A.PRESSURE}
+    mqtt:      {topic: example/telemetry/wastewater/COLL_A/FORCEMAINS_A/FORCEMAIN_A/PRESSURE}
+  FORCEMAIN_A_FLOW:
+    opcua:     {identifier: CollA.ForcemainA.Flow}
+    historian: {tag: COLL_A.FORCEMAIN_A.FLOW}
+    mqtt:      {topic: example/telemetry/wastewater/COLL_A/FORCEMAINS_A/FORCEMAIN_A/FLOW}
+  AERATION_01_DO:
+    opcua:     {identifier: ExampleWwtp.Aeration01.Do}
+    historian: {tag: EXAMPLE_WWTP.AERATION_01.DO}
+    mqtt:      {topic: example/telemetry/wastewater/EXAMPLE_WWTP/SECONDARY/AERATION_01/DO}
+  SCREEN_01_DIFF_LEVEL:
+    opcua:     {identifier: ExampleWwtp.Screen01.DiffLevel}
+    historian: {tag: EXAMPLE_WWTP.SCREEN_01.DIFF_LEVEL}
+    mqtt:      {topic: example/telemetry/wastewater/EXAMPLE_WWTP/HEADWORKS/SCREEN_01/DIFF_LEVEL}
+  SP_01_CURRENT:
+    opcua:     {identifier: ExampleSps.Sp01.Current}
+    historian: {tag: EXAMPLE_SPS.SP_01.CURRENT}
+    mqtt:      {topic: example/telemetry/wastewater/EXAMPLE_SPS/PUMPING/SP_01/CURRENT}
+  SP_02_CURRENT:
+    opcua:     {identifier: ExampleSps.Sp02.Current}
+    historian: {tag: EXAMPLE_SPS.SP_02.CURRENT}
+    mqtt:      {topic: example/telemetry/wastewater/EXAMPLE_SPS/PUMPING/SP_02/CURRENT}
+
+# Event topics follow the pattern
+#   example/events/wastewater/{site}/{asset}/{eventType}
+events:
+  WET_WELL_HIGH_LEVEL:
+    opcua:     {identifier: ExampleSps.WetWell.HighLevelAlarm}
+    historian: {tag: EXAMPLE_SPS.WET_WELL.HIGH_LEVEL_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/WET_WELL/HighLevelAlarm}
+  WET_WELL_HIGH_HIGH_LEVEL:
+    opcua:     {identifier: ExampleSps.WetWell.HighHighLevelAlarm}
+    historian: {tag: EXAMPLE_SPS.WET_WELL.HIGH_HIGH_LEVEL_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/WET_WELL/HighHighLevelAlarm}
+  SP_01_RUN:
+    opcua:     {identifier: ExampleSps.Sp01.PumpRunState}
+    historian: {tag: EXAMPLE_SPS.SP_01.PUMP_RUN_STATE}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/SP_01/PumpRunState}
+  SP_01_TRIP:
+    opcua:     {identifier: ExampleSps.Sp01.PumpTripAlarm}
+    historian: {tag: EXAMPLE_SPS.SP_01.PUMP_TRIP_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/SP_01/PumpTripAlarm}
+  SP_02_RUN:
+    opcua:     {identifier: ExampleSps.Sp02.PumpRunState}
+    historian: {tag: EXAMPLE_SPS.SP_02.PUMP_RUN_STATE}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/SP_02/PumpRunState}
+  SP_02_TRIP:
+    opcua:     {identifier: ExampleSps.Sp02.PumpTripAlarm}
+    historian: {tag: EXAMPLE_SPS.SP_02.PUMP_TRIP_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/SP_02/PumpTripAlarm}
+  SP_01_FAIL_TO_START:
+    opcua:     {identifier: ExampleSps.Sp01.FailToStartAlarm}
+    historian: {tag: EXAMPLE_SPS.SP_01.FAIL_TO_START_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/SP_01/FailToStartAlarm}
+  SP_02_FAIL_TO_START:
+    opcua:     {identifier: ExampleSps.Sp02.FailToStartAlarm}
+    historian: {tag: EXAMPLE_SPS.SP_02.FAIL_TO_START_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_SPS/SP_02/FailToStartAlarm}
+  FORCEMAIN_A_STATE:
+    opcua:     {identifier: CollA.ForcemainA.MainState}
+    historian: {tag: COLL_A.FORCEMAIN_A.MAIN_STATE}
+    mqtt:      {topic: example/events/wastewater/COLL_A/FORCEMAIN_A/MainState}
+  BLOWER_01_FAIL_TO_START:
+    opcua:     {identifier: ExampleWwtp.Blower01.FailToStartAlarm}
+    historian: {tag: EXAMPLE_WWTP.BLOWER_01.FAIL_TO_START_ALARM}
+    mqtt:      {topic: example/events/wastewater/EXAMPLE_WWTP/BLOWER_01/FailToStartAlarm}
+
+# Where each record lives. Links and file paths are sensitive, so none is shown.
+records:
+  SOP_WW_01:   {system: documents, id: SOP-WW-01}
+  DWG_SPS_001: {system: documents, id: DWG-SPS-001}
+
+# What the same asset is called in other systems.
+assetIdentifiers:
+  SP_01:           {maintenance: EQ-40011}
+  SP_02:           {maintenance: EQ-40012}
+  FORCEMAIN_A:     {maintenance: EQ-50003, gis: FM-0001}
+  AERATION_01_AIT: {maintenance: EQ-60021}
+
+# Records that are looked up, not listed.
+lookups:
+  WorkOrder: {system: maintenance, by: maintenance}
+  VerificationRecord: {system: maintenance, by: maintenance}

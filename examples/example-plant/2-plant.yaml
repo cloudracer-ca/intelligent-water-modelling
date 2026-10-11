@@ -1,0 +1,129 @@
+# Example Water Utility, file 2 of 3: THE PLANT (what you have).
+#
+# This file is a LEARNING EXAMPLE. Every name, identifier, tag, topic and value in it is invented for this
+# repository. It does not describe any real plant, utility, equipment, control system or address.
+#
+# What this file holds: the equipment, what is measured on it, and how the equipment is connected. Every type
+# named here must be defined in 1-types.yaml. There are no addresses here: this file would stay the same if
+# you replaced every controller, historian and broker.
+#
+# Who would own it: asset management, with operations. It changes when the plant changes.
+
+# The change record for this file. It must name the version of 1-types.yaml it was checked against.
+change: {date: 2026-10-09, approvedBy: Operations manager, typesVersion: 0.2.0,
+         reason: "The compressor now SuppliesAir to the surge vessel (was Feeds)"}
+
+# ------------------------------------------------------------------------------------------------ assets
+# The tree. `parent` is the only containment you write; PartOf / InstalledAt edges are generated from it.
+# Topic segments are derived from the id unless `topicSegment` says otherwise.
+assets:
+  # --- the treatment plant
+  EXAMPLE_WTP: {type: Site, displayName: Example Water Treatment Plant, topicSegment: EXAMPLE_WTP}
+  FILTRATION: {type: Area, displayName: Filtration, parent: EXAMPLE_WTP}
+  HIGH_LIFT: {type: Area, displayName: Clearwell and high lift, parent: EXAMPLE_WTP}
+  FILTER_01: {type: Filter, displayName: Filter 1, parent: FILTRATION}
+  FILTER_02: {type: Filter, displayName: Filter 2, parent: FILTRATION}
+  CLEARWELL: {type: Reservoir, displayName: Clearwell, parent: HIGH_LIFT}
+  HLP_01: {type: Pump, displayName: High-lift pump 1, parent: HIGH_LIFT}
+  HLP_02: {type: Pump, displayName: High-lift pump 2, parent: HIGH_LIFT}
+  SURGE_VESSEL: {type: SurgeVessel, displayName: Discharge surge vessel, parent: HIGH_LIFT}
+  AIR_COMPRESSOR: {type: Compressor, displayName: Surge vessel air compressor, parent: HIGH_LIFT}
+  FILTER_01_AIT: {type: Instrument, displayName: Filter 1 effluent turbidimeter, parent: FILTER_01}
+
+  # --- transmission and the station it feeds
+  TRANSMISSION_A: {type: Network, displayName: Transmission network A, topicSegment: TX_A}
+  MAINS_A: {type: Area, displayName: Mains, parent: TRANSMISSION_A}
+  MAIN_A: {type: Main, displayName: Main A (plant to Station A), parent: MAINS_A}
+  STATION_A: {type: Site, displayName: Pumping Station A, topicSegment: STATION_A}
+  STORAGE_A: {type: Area, displayName: Storage and pumping, parent: STATION_A}
+  RESERVOIR_A: {type: Reservoir, displayName: Reservoir A, parent: STORAGE_A}
+  ZONE_A: {type: PressureZone, displayName: Pressure Zone A}
+
+# ------------------------------------------------------------------------------------------------ records
+# A record here is a POINTER, never the document. It gives the record's identity and revision; the document
+# stays in the system that owns it, and 3-bindings.yaml says where that is.
+#
+# List only records that change rarely: procedures, drawings, manuals. Work orders and lab results are created
+# every day, so a real model does not list them. They are looked up by asset when needed (see the `lookups`
+# section of 3-bindings.yaml). WO_0001 is listed here only because the example incident refers to it.
+records:
+  DWG_HL_001:
+    type: Drawing
+    displayName: "DWG-HL-001: high-lift discharge and surge protection"
+    revision: "C"
+  WO_0001:
+    type: WorkOrder
+    displayName: "WO-0001: compressor feeder breaker found tripped; reset deferred"
+    status: deferred
+  SOP_SURGE_01:
+    type: Procedure
+    displayName: "SOP-SURGE-01: surge vessel charge check"
+    revision: "2"
+
+# ------------------------------------------------------------------------------------------------ measurements
+# One owner, one type, one unit. `key` is the short name used when the value is published.
+# Quality limits come from the measurement type in 1-types.yaml. One entry may override them with a reason:
+# see ZONE_A_PRESSURE, where a distribution zone runs at a lower pressure than a transmission main.
+measurements:
+  FILTER_01_TURBIDITY: {asset: FILTER_01,    type: Turbidity, key: TURBIDITY, unit: NTU,  displayName: Filter 1 effluent turbidity}
+  FILTER_01_FLOW:      {asset: FILTER_01,    type: Flow,      key: FLOW,      unit: "L/s",displayName: Filter 1 flow}
+  FILTER_02_TURBIDITY: {asset: FILTER_02,    type: Turbidity, key: TURBIDITY, unit: NTU,  displayName: Filter 2 effluent turbidity}
+  CLEARWELL_LEVEL:     {asset: CLEARWELL,    type: Level,     key: LEVEL,     unit: m,    displayName: Clearwell level}
+  HLP_01_SPEED:        {asset: HLP_01,       type: PumpSpeed, key: SPEED,     unit: "%",  displayName: High-lift pump 1 speed}
+  SURGE_VESSEL_LEVEL:  {asset: SURGE_VESSEL, type: Level,     key: LEVEL,     unit: m,    displayName: Surge vessel water level}
+  MAIN_A_PRESSURE:     {asset: MAIN_A,       type: Pressure,  key: PRESSURE,  unit: kPa,  displayName: Main A pressure}
+  RESERVOIR_A_LEVEL:   {asset: RESERVOIR_A,  type: Level,     key: LEVEL,     unit: m,    displayName: Reservoir A level}
+  ZONE_A_PRESSURE:     {asset: ZONE_A,       type: Pressure,  key: PRESSURE,  unit: kPa,  displayName: Zone A pressure,
+                        quality: {range: [0, 900]}}
+
+# ------------------------------------------------------------------------------------------------ derived
+# A derived value is calculated from other values and published back for others to use. Treat it like a
+# measurement (one owner, one type, one unit) and add what it is made from. Three rules:
+#   - only the service named in `publishedBy` may publish it (see 3-bindings.yaml);
+#   - it is only as good as its inputs: if any input is suspect or stale, so is the result;
+#   - no loops: a derived value may never be one of its own inputs, directly or through others.
+derived:
+  MAIN_A_PRESSURE_AVG_5MIN:
+    asset: MAIN_A
+    type: Pressure
+    key: PRESSURE_AVG_5MIN
+    unit: kPa
+    displayName: Main A pressure, 5-minute average
+    inputs: [MAIN_A_PRESSURE]
+    formula: "the average of the input over a moving 5-minute window"
+    publishedBy: stream-calculator
+
+# ------------------------------------------------------------------------------------------------ events
+# States and alarms are events: an enumerated type and one owner.
+events:
+  FILTER_01_HIGH_TURBIDITY:     {asset: FILTER_01,      type: HighTurbidityAlarm,   displayName: Filter 1 high-turbidity alarm}
+  HLP_01_RUN:                   {asset: HLP_01,         type: PumpRunState,         displayName: High-lift pump 1 run state}
+  HLP_01_TRIP:                  {asset: HLP_01,         type: PumpTripAlarm,        displayName: High-lift pump 1 trip alarm}
+  HLP_02_RUN:                   {asset: HLP_02,         type: PumpRunState,         displayName: High-lift pump 2 run state}
+  HLP_02_TRIP:                  {asset: HLP_02,         type: PumpTripAlarm,        displayName: High-lift pump 2 trip alarm}
+  AIR_COMPRESSOR_FAIL_TO_START: {asset: AIR_COMPRESSOR, type: FailToStartAlarm,     displayName: Compressor fail-to-start alarm}
+  SURGE_VESSEL_PROTECTION:      {asset: SURGE_VESSEL,   type: SurgeProtectionState, displayName: Surge protection state}
+  MAIN_A_STATE:                 {asset: MAIN_A,         type: MainState,            displayName: Main A state}
+
+# ------------------------------------------------------------------------------------------------ relationships
+# Typed, directed triples. Containment is NOT repeated here (it comes from `parent`).
+relationships:
+  # the water path
+  - {source: FILTER_01, type: Feeds, target: CLEARWELL}
+  - {source: FILTER_02, type: Feeds, target: CLEARWELL}
+  - {source: CLEARWELL, type: Feeds, target: HLP_01}
+  - {source: CLEARWELL, type: Feeds, target: HLP_02}
+  - {source: HLP_01, type: Feeds, target: MAIN_A}
+  - {source: HLP_02, type: Feeds, target: MAIN_A}
+  - {source: MAIN_A, type: Feeds, target: RESERVOIR_A}
+  - {source: RESERVOIR_A, type: Supplies, target: ZONE_A}
+  # the protection chain: the compressor keeps the vessel charged; the vessel protects the main from surge
+  - {source: AIR_COMPRESSOR, type: SuppliesAir, target: SURGE_VESSEL}
+  - {source: SURGE_VESSEL, type: Protects, target: MAIN_A}
+  # observation
+  - {source: FILTER_01_AIT, type: Monitors, target: FILTER_01}
+  # governance and records
+  - {source: SURGE_VESSEL, type: GovernedBy, target: SOP_SURGE_01}
+  - {source: SURGE_VESSEL, type: ShownOn, target: DWG_HL_001}
+  - {source: AIR_COMPRESSOR, type: ShownOn, target: DWG_HL_001}
+  - {source: WO_0001, type: Concerns, target: AIR_COMPRESSOR}

@@ -1,0 +1,61 @@
+# Example Wastewater System, file 1 of 3: LOCAL TYPES (additions to the shared rule book).
+#
+# This file is a LEARNING EXAMPLE. Every name, identifier, tag, topic and value in it is invented for this
+# repository. It does not describe any real plant, utility, equipment, control system or address.
+#
+# What this file shows: "a shared core, and local additions". This wastewater example does NOT copy the types
+# from the water example. It uses them as they are, and adds only what wastewater needs. Nothing in the shared
+# file is altered.
+#
+# Who would own it: the same cross-department standards group, with the wastewater department proposing.
+
+# The shared types this file builds on, and the version it was checked against.
+uses: {file: ../example-plant/1-types.yaml, version: 0.2.0}
+
+model:
+  id: example-wastewater-system
+  version: 0.3.0
+  classification: synthetic
+  change: {date: 2026-10-10, approvedBy: Standards lead, reason: "Add a screen differential level, a pump motor current and a high-high level alarm"}
+  description: >-
+    One wastewater path for a learning example: a sewage pumping station (a wet well and two pumps), one
+    forcemain, and part of a treatment plant (a screen, a grit chamber, a primary settling tank, an aeration
+    basin with two blowers, a secondary clarifier).
+    Everything is invented.
+
+units:
+  mg/L: {quantity: concentration, description: Milligrams per litre}
+  A: {quantity: electric current, description: Amperes}
+
+# Each local type EXTENDS a shared type, so it inherits that type's rules and expectations.
+#   WetWell is a kind of Reservoir, so every wet well must have a level.
+#   Forcemain is a kind of Main, so every forcemain must have a pressure and a state.
+# None of these was checked against a published standard. A real model should look first
+# (docs/optional/references.md, "Where to find ready-made types").
+types:
+  WetWell: {displayName: Wet well, extends: Reservoir, description: "A chamber that collects sewage ahead of the pumps"}
+  Forcemain: {displayName: Forcemain, extends: Main, description: "A pressurised sewer from a pumping station"}
+  Screen: {displayName: Screen, extends: Equipment, description: "A screen that removes debris at the plant inlet",
+           expects: {measurements: [DifferentialLevel]}}
+  GritChamber: {displayName: Grit chamber, extends: Equipment, description: "A chamber where sand and grit settle out after screening"}
+  Blower: {displayName: Blower, extends: Equipment, description: "A blower that supplies air to an aeration basin"}
+  AerationBasin: {displayName: Aeration basin, extends: Equipment, description: "A basin where air is added for biological treatment",
+                  expects: {measurements: [DissolvedOxygen]}}
+  Clarifier: {displayName: Clarifier, extends: Equipment, description: "A tank where solids settle out"}
+
+measurementTypes:
+  DissolvedOxygen: {description: Dissolved oxygen, units: [mg/L],
+                    quality: {range: [0, 20], staleAfter: 2 min, flatlineAfter: 30 min}}
+  # The level upstream of a screen minus the level downstream. It rises as the screen blinds.
+  DifferentialLevel: {description: Difference in level across a screen, units: [m],
+                      quality: {range: [0, 2], staleAfter: 2 min}}
+  MotorCurrent: {description: Motor current, units: [A],
+                 quality: {range: [0, 250], staleAfter: 1 min}}
+
+eventTypes:
+  HighLevelAlarm:
+    description: Level above its alarm limit
+    states: {NORMAL: 0, ACTIVE: 1}
+  HighHighLevelAlarm:
+    description: Level above its second, higher alarm limit
+    states: {NORMAL: 0, ACTIVE: 1}
