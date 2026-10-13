@@ -6,7 +6,7 @@
 
 | Term | Meaning |
 |---|---|
-| **Asset** | Any named thing in the model: a site, an area, this pump, that reservoir. Each has one type. |
+| **Asset** | Any named thing in the model: a site, an area, this pump, that reservoir. Each has one type. (In the example files, `Asset` is also the name of one class of type: installed items such as instruments.) |
 | **Type** | A kind of thing: a pump, a reservoir. Defined once. |
 | **Inheritance** | A type built on another type. It gets everything the parent has, and can add to it. |
 | **Relationship** | A named, one-way connection between two assets: *feeds*, *supplies air to*, *protects*. Each has an inverse that reads the other way: *fed by*. |
@@ -14,6 +14,7 @@
 | **Binding** | Where one measurement lives in each system: its OPC UA address, historian tag and topic. |
 | **Topic** | The name a message is published under, such as `example/telemetry/water/.../PRESSURE`. |
 | **Schema** | The rules a message must pass: which fields, of which kinds. |
+| **YAML** | A plain-text format for structured data, written with indentation. The example models use it. |
 | **Model compiler** | A program that checks the model and writes the configuration for each tool from it. |
 | **Version control** | Software, such as Git, that keeps every version of a file, with who changed it and why. |
 | **API** | A published way for one program to ask another for data. |

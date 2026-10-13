@@ -27,7 +27,7 @@ what is normal for each site.
 
 ```yaml
 # 1-types.yaml
-Pressure: {units: [kPa], quality: {range: [0, 1600], staleAfter: 1 min, flatlineAfter: 15 min}}
+Pressure: {units: [kPa], quality: {range: [-100, 1600], staleAfter: 1 min, flatlineAfter: 15 min}}
 ```
 
 One measurement can override its type, with a reason: see `ZONE_A_PRESSURE` in the example.

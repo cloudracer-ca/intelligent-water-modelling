@@ -10,6 +10,7 @@
 # Who would own it: the same cross-department standards group, with the wastewater department proposing.
 
 # The shared types this file builds on, and the version it was checked against.
+# The local types use the shared file's namespace, so they are addressed alongside the shared types.
 uses: {file: ../example-plant/1-types.yaml, version: 0.2.0}
 
 model:

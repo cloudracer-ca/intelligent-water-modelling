@@ -83,7 +83,7 @@ Begin with the first three: they are easy to explain. Add the statistical rules 
 them. A statistical baseline must suit the operating state and the sampling: normal pump cycling and a planned
 stop are not faults.
 
-Every limit lives in the model, next to the measurement it applies to, with the person who agreed it. A rule
+Every limit lives in the model, next to the measurement it applies to, with the role that agreed it. A rule
 that fires reports the value, the limit, the time and the rule's name, which makes the result auditable. Getting
 the same result every time also needs fixed rules, configuration, starting state and inputs.
 The example models carry quality limits only (the believable range, and how long before a value is stale or
@@ -185,7 +185,8 @@ The service then **groups** related findings into one incident, with the timing 
 underlying event. Grouping is not suppression. A relationship alone never justifies hiding an alarm that needs
 its own response, such as a wet well high-high level. Real suppression is designed conditional alarm logic, with
 approved conditions, rules for applying and releasing it, and an audit trail, inside an alarm-management process
-([ISA, on managing and optimising alarms](https://www.isa.org/intech-home/2017/september-october/features/from-managing-to-optimizing-alarms)).
+(designed suppression, in the terms of [ISA-18.2](references.md#where-to-find-ready-made-types) and IEC 62682;
+[ISA, on managing and optimising alarms](https://www.isa.org/intech-home/2017/september-october/features/from-managing-to-optimizing-alarms)).
 
 ## Blast radius: walking forwards
 
@@ -227,7 +228,7 @@ vendor's terms govern.
 |---|---|---|
 | **In-memory graph library** | [NetworkX](https://networkx.org/) (BSD-3-Clause); [rustworkx](https://www.rustworkx.org/) (Apache-2.0), with a [different API](https://www.rustworkx.org/networkx.html); benchmark your workload | Rarely needed |
 | **Graph database** | [TypeDB](https://github.com/typedb/typedb) Community Edition (MPL-2.0); TypeDB 3 uses [*functions*](https://typedb.com/docs/typeql-reference/functions/functions-vs-rules/) instead of rules. [Neo4j](https://neo4j.com/licensing/) Community Edition (GPLv3) | Neo4j Enterprise Edition; [Timebase Atlas](https://hub.docker.com/r/timebase/atlas) (public beta), which holds an industrial model as a graph, with Cypher queries, a REST API and i3X |
-| **Asset model with built-in analytics** | Usually assembled from the parts on this page | [AVEVA PI Asset Framework](https://docs.aveva.com/bundle/pi-server-f-af-pse/page/1021923.html): analytics create event frames (event interval and involved assets). [Canary](https://helpcenter.canarylabs.com/t/m1ypq4h/calcs-events): Views asset models and Calculation service create events per asset |
+| **Asset model with built-in analytics** | Usually assembled from the parts on this page | [AVEVA PI Asset Framework](https://docs.aveva.com/bundle/pi-server-f-af-pse/page/1021923.html): analytics create event frames (event interval and involved assets). [Canary](https://helpcenter.canarylabs.com/t/m1ypq4h/calcs-events): asset models (Views), with a calculation service that creates events per asset |
 | **Detection rules on the stream** | [eKuiper](https://github.com/lf-edge/ekuiper) (Apache-2.0), SQL rules over MQTT for the edge; [Apache Flink](https://flink.apache.org/) (Apache-2.0), for large streams | The analytics built into your historian or data platform |
 
 For an assistant that helps *build* the model, see [the one-value page](one-value-followed-through.md#products-as-examples-only). It plays

@@ -29,7 +29,7 @@ assets:                     # the things you actually have
   SURGE_VESSEL:   {type: SurgeVessel, parent: HIGH_LIFT}
   MAIN_A:         {type: Main,        parent: EXAMPLE_PLANT}
 
-measurements:               # one value, described once
+measurements:               # one value, described once (a fuller model also gives each one a type)
   MAIN_A_PRESSURE:    {asset: MAIN_A,       unit: kPa}
   SURGE_VESSEL_LEVEL: {asset: SURGE_VESSEL, unit: m}
 

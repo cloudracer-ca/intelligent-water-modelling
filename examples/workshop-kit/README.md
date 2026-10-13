@@ -33,7 +33,8 @@ drift apart.
 **If you fill it in with real data, keep it inside your organisation.** See
 [what not to put in a model you share](../../docs/4-how-to-get-started.md#what-not-to-put-in-a-model-you-share).
 
-The template was checked three ways: every row of the example shows "ok"; the topics it builds match the
-example's bindings file; and copies with deliberate mistakes (a missing parent, a misspelt measurement type
-or kind, "feeds" in lower case, a parent loop, a wrong unit, a duplicate relationship, an unknown asset)
-reported each of them.
+The template was checked three ways, each in two calculation engines (LibreOffice, and one that follows
+Excel's rules for empty cells): every row of the example shows "ok"; the topics it builds match the example's
+bindings file; and copies with deliberate mistakes (a missing parent, a misspelt measurement type or kind,
+"feeds" in lower case, a parent loop, a wrong unit, a duplicate relationship, an unknown asset) reported each
+of them.

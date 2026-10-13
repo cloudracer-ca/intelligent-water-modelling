@@ -99,7 +99,7 @@ MQTT moves messages. It does not say what is inside them or how topics are named
 | **Topic names** | Set by the specification | Yours to design |
 | **Message contents** | A compact format with data types built in | Human-readable; you define the fields |
 | **Who can read it** | Software that understands Sparkplug | Almost any tool |
-| **Is the device online?** | Built in: birth and death messages (Sparkplug 3.0) | Yours to design, for example with a last-will message and a retained status |
+| **Is the device online?** | Built in: birth and death messages, part of Sparkplug B (current version 3.0) | Yours to design, for example with a last-will message and a retained status |
 
 Both are widely used, and many sites use both in different places. Neither is the right answer everywhere.
 

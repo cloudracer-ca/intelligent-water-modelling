@@ -6,7 +6,7 @@ A model is a few text files. People can read them, review them and keep them in 
 
 There are three examples, all invented:
 
-- [starter-model.yaml](../examples/starter-model.yaml): one file of about 30 lines. **Start here.** Copy it and
+- [starter-model.yaml](../examples/starter-model.yaml): one file of about 40 lines. **Start here.** Copy it and
   replace the names with your own.
 - [example-plant/](../examples/example-plant/): a fuller drinking-water model of 18 assets (nine of them
   equipment), in three files. It shows where a starter model grows to.
@@ -27,7 +27,8 @@ The fuller example is split by the question each file answers.
 | [3-bindings.yaml](../examples/example-plant/3-bindings.yaml) | Where does each value live in each system? | The automation or SCADA group | When a system or a tag changes |
 
 The split makes the model easier to govern. Each file has one owner and one kind of review. Replacing a
-historian touches only the third file. Adding a pump touches only the second.
+historian touches only the third file. Adding a pump never touches the first: it goes in the second, and its
+addresses in the third.
 
 ### Who owns what
 

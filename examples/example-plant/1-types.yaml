@@ -55,6 +55,8 @@ units:
 types:
   Location: {displayName: Location, abstract: true, description: "A place: a site, a linear network, or a hydraulic region"}
   Function: {displayName: Function, abstract: true, description: "A named slot in the site -> area -> equipment tree"}
+  # Note: the plant file's `assets:` section lists every named thing (sites, areas, equipment). `Asset` here is
+  # narrower: one class of type, for installed items with their own identity, such as an instrument.
   Asset: {displayName: Asset, abstract: true, description: "A physical thing with its own identity, installed at one Function"}
   Record: {displayName: Record, abstract: true, description: "An operational document: a procedure, a work order, a sample"}
 
@@ -100,12 +102,12 @@ measurementTypes:
   Turbidity: {description: Water turbidity, units: [NTU],
               quality: {range: [0, 100], staleAfter: 2 min, flatlineAfter: 30 min}}
   Pressure: {description: Water pressure, units: [kPa],
-             quality: {range: [0, 1600], staleAfter: 1 min, flatlineAfter: 15 min}}
+             quality: {range: [-100, 1600], staleAfter: 1 min, flatlineAfter: 15 min}}
   Flow: {description: Volumetric flow rate, units: ["L/s"],
          quality: {range: [0, 5000], staleAfter: 1 min, flatlineAfter: 15 min}}
   Level: {description: Liquid level, units: [m],
           quality: {range: [0, 15], staleAfter: 2 min, flatlineAfter: 60 min, maxChangePerMinute: 0.5}}
-  PumpSpeed: {description: Pump speed command, units: ["%"],
+  PumpSpeed: {description: Pump speed, units: ["%"],
               quality: {range: [0, 100], staleAfter: 1 min}}
 
 eventTypes:

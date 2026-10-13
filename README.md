@@ -39,7 +39,7 @@ Read these only if you want more.
 
 All are invented. Nothing needs installing to read this resource; the root-cause page includes short, illustrative Python sketches.
 
-- [examples/starter-model.yaml](examples/starter-model.yaml): about 30 lines. Start here: copy it and replace the
+- [examples/starter-model.yaml](examples/starter-model.yaml): about 40 lines. Start here: copy it and replace the
   names with your own.
 - [examples/example-plant/](examples/example-plant/): a fuller drinking-water model of 18 assets (nine of them
   equipment), split into three commented files: the types, the plant, and where each value lives.

@@ -1,6 +1,6 @@
 # 1. The ideas
 
-*About 3 minutes.*
+*About 3 minutes. Unfamiliar terms are explained in the [glossary](optional/references.md#glossary).*
 
 Plants already have data. What software and AI lack is **meaning**: what each value belongs to, and how one piece
 of equipment affects another. This page explains how that meaning is built up.

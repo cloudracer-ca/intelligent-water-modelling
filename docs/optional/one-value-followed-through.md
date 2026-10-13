@@ -214,11 +214,11 @@ the excerpts on this page.
 - **Broker rules:** EMQX is one broker that can validate messages against a schema.
 - **Graph types:** Timebase Atlas, in public beta, is one modelling tool that holds types and relationships.
 - **An open API over OPC UA:** [i3x2ua](https://github.com/AndreasHeine/i3x2ua) is one open-source project
-  that puts an i3X 1.0 interface in front of an OPC UA server you already have. It can also offer the same
-  data to an AI assistant through MCP, with no write routes. Four things to know before trying it: its licence is
+  that puts an i3X interface in front of an OPC UA server you already have. It can also offer the same
+  data to an AI assistant through MCP; its MCP interface has no write routes. Four things to know before trying it: its licence is
   AGPL-3.0; it has no sign-in of its own and expects a gateway in front to provide one; its author
-  reports i3X compliance and publishes a conformance report; and writing values and MCP are both off until you turn them
-  on. Some commercial products also offer i3X.
+  reports i3X compliance and publishes a conformance report; and its i3X write routes and MCP are both off until you turn
+  them on. Some commercial products also offer i3X.
 
 Two of these also include an assistant that helps build types:
 

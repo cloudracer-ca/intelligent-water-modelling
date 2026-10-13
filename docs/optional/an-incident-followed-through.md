@@ -21,10 +21,13 @@ The names are the invented ones from [the water example](../../examples/example-
 ```mermaid
 flowchart LR
   A["1. Compressor<br/>fails to start"] --> B["2. Surge vessel<br/>loses its charge"]
-  B --> C["3. High turbidity<br/>plant shuts down"]
-  C --> D["4. High-lift<br/>pumps stop"]
-  D --> E["5. Main A breaks<br/>and is isolated"]
+  C["3. High turbidity<br/>plant shuts down"] --> D["4. High-lift<br/>pumps stop"]
+  B -->|"protection missing"| E["5. Main A breaks<br/>and is isolated"]
+  D -->|"pressure wave"| E
 ```
+
+Two separate chains meet at the main: one removed the protection, the other caused the surge. Numbers are the
+order in time.
 
 To the operator this is a flood of alarms from five places within a few minutes.
 
@@ -36,12 +39,12 @@ An analysis built on the model can do three things, all with fixed rules.
    *protects* Main A. That path links the first small alarm to the final failure.
 2. **It checks the timing.** From the stored history it reads when each event happened, and works out the
    time between the pump stop, the break and the isolation.
-3. **It writes a finding.** The finding names the most likely cause, as a candidate for a person to confirm,
-   lists the path, and shows every number with the stored value it came from.
+3. **It writes a finding.** The finding lists the candidate causes, earliest first, for a person to
+   confirm, lists the path, and shows every number with the stored value it came from.
 
 ```mermaid
 flowchart LR
-  R["Relationships<br/>from the model"] --> F["Finding<br/>likely cause, path, numbers"]
+  R["Relationships<br/>from the model"] --> F["Finding<br/>candidates, path, numbers"]
   T["Timing<br/>from the historian"] --> F
   F --> P["A person reviews it"]
 ```
