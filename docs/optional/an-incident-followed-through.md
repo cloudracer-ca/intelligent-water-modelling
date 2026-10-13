@@ -1,6 +1,6 @@
 # An incident, followed through the graph
 
-*Optional. About 4 minutes.*
+*Optional. About 3 minutes.*
 
 The central claim of this repository is that a model with typed relationships lets software work out **why**
 something happened. This page follows one invented incident through the water example to show how.
@@ -36,20 +36,21 @@ An analysis built on the model can do three things, all with fixed rules.
    *protects* Main A. That path links the first small alarm to the final failure.
 2. **It checks the timing.** From the stored history it reads when each event happened, and works out the
    time between the pump stop, the break and the isolation.
-3. **It writes a finding.** The finding names the root cause, lists the path, and shows every number with the
-   stored value it came from.
+3. **It writes a finding.** The finding names the most likely cause, as a candidate for a person to confirm,
+   lists the path, and shows every number with the stored value it came from.
 
 ```mermaid
 flowchart LR
-  R["Relationships<br/>from the model"] --> F["Finding<br/>root cause, path, numbers"]
+  R["Relationships<br/>from the model"] --> F["Finding<br/>likely cause, path, numbers"]
   T["Timing<br/>from the historian"] --> F
   F --> P["A person reviews it"]
 ```
 
 Related alarms can be grouped while every underlying event remains available. Suppression requires separately
-approved conditions, activation and release rules, and an audit trail.
+approved conditions, activation and release rules, and an audit trail (designed suppression, in the terms of
+ISA-18.2 and IEC 62682).
 
-Because the rules are fixed, the same data always gives the same finding.
+Because the rules are fixed, the same data, model and configuration always give the same finding.
 
 See also: [Root cause and anomaly detection, without guessing](root-cause-and-anomaly-detection.md), on how to build this.
 

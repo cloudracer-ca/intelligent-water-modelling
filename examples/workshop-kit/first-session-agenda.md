@@ -6,7 +6,7 @@
 management, one from automation or SCADA, and one who will own the result. Keep managers to one.
 
 **Before the session:** send everyone [page 1, the ideas](../../docs/1-the-ideas.md)
-(about five minutes to read). The person leading the types step checks whether a published standard already
+(about three minutes to read). The person leading the types step checks whether a published standard already
 defines the likely types, so the session is not spent searching.
 
 **Bring:** the [blank template](model-template-blank.xlsx) on a shared screen (and the

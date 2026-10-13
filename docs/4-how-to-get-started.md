@@ -1,6 +1,6 @@
 # 4. How to get started
 
-*About 6 minutes.*
+*About 6 minutes. Unfamiliar terms are explained in the [glossary](optional/references.md#glossary).*
 
 "How do I start?" is the most common question on this subject. The honest answer is: small, and with your own
 words for your own equipment.
@@ -16,8 +16,8 @@ words for your own equipment.
 5. **Add three kinds of relationship.** *Feeds*, *protects* and *monitors* go a long way.
 6. **Review it with the people who run the plant,** then put the file in version control. An operator will spot a
    wrong connection in seconds.
-7. **Generate one thing from it.** A topic list for the broker is a good first output. Then grow the model one
-   question at a time.
+7. **Generate one thing from it.** A topic list for the broker is a good first output: the workshop template's
+   Topic column builds one for you. Then grow the model one question at a time.
 
 The [workshop kit](../examples/workshop-kit/) has a spreadsheet template for steps 3 to 5 and an agenda for
 doing them in one 90-minute session.
@@ -86,8 +86,9 @@ The example in this repository is wholly invented for that reason. There is a sh
 
 ## Four tests for any tool
 
-These four are widely used as the minimum to ask of anything you add, and were popularised by Walker
-Reynolds ([summary](https://www.sirris.be/en/inspiration/unified-namespace-next-step-industry-40-standardisation)).
+These four are often given as the minimum technical requirements for a UNS
+([one summary](https://www.sirris.be/en/inspiration/unified-namespace-next-step-industry-40-standardisation)), and
+they make a good minimum to ask of anything you add.
 
 | Test | In plain words |
 |---|---|

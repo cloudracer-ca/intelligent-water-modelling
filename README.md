@@ -13,8 +13,8 @@ Four short pages, in order.
 
 | # | Page | You will be able to | Time |
 |---|---|---|---|
-| 1 | [The ideas](docs/1-the-ideas.md) | say why a Unified Namespace alone is not enough, and what a knowledge graph adds | 5 min |
-| 2 | [What a model looks like](docs/2-what-a-model-looks-like.md) | read a small YAML model, see why it is split into three files, who owns each part, and what is generated from it | 3 min |
+| 1 | [The ideas](docs/1-the-ideas.md) | say why a Unified Namespace alone is not enough, and what a knowledge graph adds | 3 min |
+| 2 | [What a model looks like](docs/2-what-a-model-looks-like.md) | read a small YAML model, see why it is split into three files, who owns each part, and what is generated from it | 5 min |
 | 3 | [An open API](docs/3-an-open-api.md) | explain why an open API matters, with i3X as the example | 3 min |
 | 4 | [How to get started](docs/4-how-to-get-started.md) | take seven first steps, test any tool four ways, and avoid the problems most teams meet | 6 min |
 
@@ -25,7 +25,7 @@ Read these only if you want more.
 - [Choosing tools without losing the model](docs/optional/choosing-tools.md): the jobs a tool can do, four kinds of product, and fifteen questions to ask of any of them. No products are named.
 - [Build or buy?](docs/optional/build-or-buy.md): a starting position for each part, what to agree when someone builds it for you, and four questions that settle most cases.
 - [An incident, followed through the graph](docs/optional/an-incident-followed-through.md): one invented incident, how the relationships lead to its cause, where AI fits, and a note on security.
-- [Root cause and anomaly detection, without guessing](docs/optional/root-cause-and-anomaly-detection.md): how to build the deterministic detection and root-cause analysis behind that incident, with an architecture diagram, short code sketches, and open-source and commercial options compared.
+- [Root cause and anomaly detection, without guessing](docs/optional/root-cause-and-anomaly-detection.md): how to build the deterministic detection and root-cause analysis behind that incident, with an architecture diagram, short code sketches, and open-source and commercial products listed by role as dated examples.
 - [One value, followed through](docs/optional/one-value-followed-through.md): one measurement shown as a model entry, a topic, a message, its rules, an OPC UA node and a historian tag, with what was tested and the standards those outputs follow.
 - [Keeping the model honest](docs/optional/keeping-the-model-honest.md): how the broker enforces the model, reviewing changes, versions, ownership and the life of a model entry.
 - [Schema drift](docs/optional/schema-drift.md): four ways the model and the real system stop matching, and how each is caught.
@@ -37,15 +37,15 @@ Read these only if you want more.
 
 ## The example models
 
-All are invented. Nothing needs installing to read this resource; the advanced page includes illustrative Python.
+All are invented. Nothing needs installing to read this resource; the root-cause page includes short, illustrative Python sketches.
 
 - [examples/starter-model.yaml](examples/starter-model.yaml): about 30 lines. Start here: copy it and replace the
   names with your own.
-- [examples/example-plant/](examples/example-plant/): a fuller drinking-water model of 18 pieces of equipment,
-  split into three commented files: the types, the plant, and where each value lives.
+- [examples/example-plant/](examples/example-plant/): a fuller drinking-water model of 18 assets (nine of them
+  equipment), split into three commented files: the types, the plant, and where each value lives.
 - [examples/example-wastewater/](examples/example-wastewater/): a wastewater model (a pumping station, a
   forcemain and part of a treatment plant). It reuses the types above and adds seven of its own.
-- [examples/workshop-kit/](examples/workshop-kit/): a spreadsheet template that checks itself, a 90-minute
+- [examples/workshop-kit/](examples/workshop-kit/): a spreadsheet template that checks itself (a filled-in example and a blank copy), a 90-minute
   agenda for a first modelling session, an ownership worksheet and a tool evaluation sheet.
 
 ## What this does not cover

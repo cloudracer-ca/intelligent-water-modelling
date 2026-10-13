@@ -31,6 +31,9 @@ Each message can say how carefully it should be delivered.
 | **QoS 1** | Delivered at least once. It may arrive twice |
 | **QoS 2** | Delivered exactly once, at a higher cost |
 
+Each promise holds for one hop only: from the publisher to the broker, or from the broker to one subscriber.
+A message is only as safe as the weakest hop on its way.
+
 There is a trade-off between speed and certainty, and different data can use different levels.
 
 **A question to ask:** which of our data must never be missed, and how will we know if some of it was?
@@ -76,7 +79,7 @@ There are two ways to read a value from an OPC UA server.
 |---|---|---|
 | **How it works** | Ask for every value on a timer, changed or not | The server watches the value and reports when it changes |
 | **Timestamp** | Often the time of the read | The time measured at the source |
-| **Short events** | Can be missed between two reads | Reported |
+| **Short events** | Can be missed between two reads | Reported, if the sampling interval is short enough and the queue holds every change |
 | **Load** | The same whether anything changed or not | Lower when little is changing |
 
 Subscription is usually the better fit for sharing data, and it is what "report by exception" means in
@@ -96,6 +99,7 @@ MQTT moves messages. It does not say what is inside them or how topics are named
 | **Topic names** | Set by the specification | Yours to design |
 | **Message contents** | A compact format with data types built in | Human-readable; you define the fields |
 | **Who can read it** | Software that understands Sparkplug | Almost any tool |
+| **Is the device online?** | Built in: birth and death messages (Sparkplug 3.0) | Yours to design, for example with a last-will message and a retained status |
 
 Both are widely used, and many sites use both in different places. Neither is the right answer everywhere.
 

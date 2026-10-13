@@ -92,8 +92,9 @@ stuck); operating and alarm limits would be added the same way.
 ## Root cause: walking the graph
 
 The model says which relationships can carry a fault. In [the water example](../../examples/example-plant/2-plant.yaml),
-*feeds*, *supplies*, *supplies air to* and *protects* can. *Shown on* and *governed by* cannot: a drawing does not
-cause a pump to trip. Choosing that list is an engineering decision, and it belongs in the model's review.
+*feeds*, *supplies*, *supplies air to* and *protects* can. *Part of*, *installed at*, *monitors*, *governed by*, *shown
+on* and *concerns* cannot: they describe where something sits, what observes it or what is written about it,
+and a drawing does not cause a pump to trip. Choosing that list is an engineering decision, and it belongs in the model's review.
 
 The sketch below builds the graph from a plant file and lists the assets in one direction that were abnormal
 during a fixed window, earliest first. It uses [NetworkX](https://networkx.org/documentation/stable/), an open-source graph library
@@ -204,8 +205,12 @@ affected, valid only while those delays add up as assumed.
 
 ## Three ways to build it
 
-Start with files and an in-memory graph. Add a graph database or asset platform when people need exploration,
-screens or access control ([options](graph-database.md)). All patterns derive from reviewed files; product edits
+1. **Files and an in-memory graph library**, rebuilt from the model at every start.
+2. **Files and a graph database**, loaded from the model.
+3. **Files and an asset platform** that holds the model alongside the data.
+
+Start with the first. Add a graph database or asset platform when people need exploration, screens or access
+control ([options](graph-database.md)). All patterns derive from reviewed files; product edits
 must return through a committed, reviewed export before rebuilding.
 
 All three patterns need an analysis service unless a product demonstrates the required causal analysis.
@@ -221,7 +226,7 @@ vendor's terms govern.
 | Role | Open source | Commercial |
 |---|---|---|
 | **In-memory graph library** | [NetworkX](https://networkx.org/) (BSD-3-Clause); [rustworkx](https://www.rustworkx.org/) (Apache-2.0), with a [different API](https://www.rustworkx.org/networkx.html); benchmark your workload | Rarely needed |
-| **Graph database** | [TypeDB](https://github.com/typedb/typedb) Community Edition (MPL-2.0); TypeDB 3 uses [*functions*](https://typedb.com/docs/typeql-reference/functions/functions-vs-rules/) instead of rules. [Neo4j](https://neo4j.com/licensing/) Community Edition (GPLv3) | Neo4j Enterprise Edition; [Timebase Atlas](https://hub.docker.com/r/timebase/atlas), a knowledge model for industrial data with Cypher queries, a REST API and i3X |
+| **Graph database** | [TypeDB](https://github.com/typedb/typedb) Community Edition (MPL-2.0); TypeDB 3 uses [*functions*](https://typedb.com/docs/typeql-reference/functions/functions-vs-rules/) instead of rules. [Neo4j](https://neo4j.com/licensing/) Community Edition (GPLv3) | Neo4j Enterprise Edition; [Timebase Atlas](https://hub.docker.com/r/timebase/atlas) (public beta), which holds an industrial model as a graph, with Cypher queries, a REST API and i3X |
 | **Asset model with built-in analytics** | Usually assembled from the parts on this page | [AVEVA PI Asset Framework](https://docs.aveva.com/bundle/pi-server-f-af-pse/page/1021923.html): analytics create event frames (event interval and involved assets). [Canary](https://helpcenter.canarylabs.com/t/m1ypq4h/calcs-events): Views asset models and Calculation service create events per asset |
 | **Detection rules on the stream** | [eKuiper](https://github.com/lf-edge/ekuiper) (Apache-2.0), SQL rules over MQTT for the edge; [Apache Flink](https://flink.apache.org/) (Apache-2.0), for large streams | The analytics built into your historian or data platform |
 

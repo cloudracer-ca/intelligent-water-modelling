@@ -199,7 +199,7 @@ Two differences to know about:
 - **The example does not include a full schema for each type.** A tool that serves i3X would have to generate
   one from the model.
 - **Quality words differ slightly.** The example message uses GOOD, UNCERTAIN and BAD; i3X uses Good,
-  Uncertain, Bad and one more, GoodNoData, for "no value in this period".
+  Uncertain, Bad and one more, GoodNoData: the connection is good but no data exists.
 
 This mapping was checked against the i3X 1.0 implementation guide in October 2026. No i3X server was built
 from the example.
@@ -209,22 +209,24 @@ from the example.
 These are examples as of October 2026, not recommendations, and not a complete list. None was configured from
 the excerpts on this page.
 
-- **OPC UA types:** HighByte Intelligence Hub 4.5 is one product that offers an import of OPC UA types.
+- **OPC UA types:** HighByte Intelligence Hub is one product that imports OPC UA types (NodeSets) as models,
+  since version 4.3.
 - **Broker rules:** EMQX is one broker that can validate messages against a schema.
-- **Graph types:** Timebase Atlas is one modelling tool that holds types and relationships.
+- **Graph types:** Timebase Atlas, in public beta, is one modelling tool that holds types and relationships.
 - **An open API over OPC UA:** [i3x2ua](https://github.com/AndreasHeine/i3x2ua) is one open-source project
   that puts an i3X 1.0 interface in front of an OPC UA server you already have. It can also offer the same
-  data to an AI assistant, read-only, through MCP. Four things to know before trying it: its licence is
-  AGPL-3.0; it has no sign-in of its own and expects a gateway in front to provide one; its i3X 1.0
-  conformance result is reported by its author; and writing values and MCP are both off until you turn them
+  data to an AI assistant through MCP, with no write routes. Four things to know before trying it: its licence is
+  AGPL-3.0; it has no sign-in of its own and expects a gateway in front to provide one; its author
+  reports i3X compliance and publishes a conformance report; and writing values and MCP are both off until you turn them
   on. Some commercial products also offer i3X.
 
 Two of these also include an assistant that helps build types:
 
-- **Timebase Atlas** lets you import a published standard, such as ISA-95, as a library of ready-made types.
-  Its assistant, Ask Gage, can then help you build your own types on top of them.
-- **HighByte Intelligence Hub 4.5** includes a Modeling Agent. It proposes models and instances from a
-  plain-language request, and a person approves each change before it takes effect.
+- **Timebase Atlas** (public beta) lets you import a published standard, such as ISA-95, into your model.
+  Its AI harness, Gage, uses agents to help build and query the model.
+- **HighByte Intelligence Hub 4.5** includes a Modeling Agent that works with a language-model service you
+  choose. It creates and edits inputs, models and instances from a plain-language request, and a person
+  reviews and approves each change before it takes effect.
 
 The same rule applies to both: start from a standard where one exists, and review everything the assistant
 proposes.

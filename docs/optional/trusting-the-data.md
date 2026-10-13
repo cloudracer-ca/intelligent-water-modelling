@@ -14,7 +14,7 @@ A quality check needs something to compare against. That is why it belongs with 
 
 | Check | What it catches | Example |
 |---|---|---|
-| **Range** | A value outside what is physically possible | A pressure of -40 kPa |
+| **Range** | A value outside what is physically possible | A gauge pressure of −150 kPa, below a perfect vacuum |
 | **Flatline** | A value that has stopped changing | A level reading the same figure for six hours |
 | **Stale** | No update within the expected time | A turbidity reading last sent yesterday |
 | **Rate of change** | A jump faster than is possible | A reservoir level rising two metres in a minute |

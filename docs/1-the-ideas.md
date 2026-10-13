@@ -1,6 +1,6 @@
 # 1. The ideas
 
-*About 5 minutes.*
+*About 3 minutes.*
 
 Plants already have data. What software and AI lack is **meaning**: what each value belongs to, and how one piece
 of equipment affects another. This page explains how that meaning is built up.
@@ -31,8 +31,8 @@ Three things follow. Every link is custom work. Calculations end up locked insid
 And the same value has a different name in each system, so there is **no single source of truth**.
 
 A Unified Namespace (UNS) addresses the wiring. It is an architecture, not a product: every system publishes
-its data to one shared place, in one agreed structure, and reads from it. The structure usually follows the
-levels of the ISA-95 standard: site, area, equipment.
+its data to one shared place, in one agreed structure, and reads from it. The structure usually borrows the
+equipment hierarchy of the ISA-95 standard, often shortened to site, area, equipment.
 
 ```mermaid
 flowchart LR
@@ -53,7 +53,7 @@ stored data, or sending a command, still needs other means. The rest of this pag
 |---|---|---|
 | **Graph** | Things, and lines between them. The lines mean nothing in particular. | "Compressor — Surge vessel — Main" |
 | **Knowledge graph** | Every thing has a *type*, and every line has a *named meaning*. | The compressor **supplies air to** the surge vessel. The surge vessel **protects** the main. |
-| **Knowledge model** | The rule book: which types exist, what properties they have, and which connections are allowed. | "A surge vessel is a kind of equipment. Only a protective device may *protect* a main." |
+| **Knowledge model** | The rule book: which types exist, what properties they have, and which connections are allowed. | "A surge vessel is a kind of equipment. *Protects* may only join one part of the plant to another, never to a document." |
 
 Each one builds on the one before. The knowledge graph is *derived* from the knowledge model, not drawn by
 hand. The formal name for a knowledge model is an **ontology**; you will meet both words.
@@ -90,7 +90,8 @@ graph, one path joins them. That path is how software works out that a compresso
 main.
 
 They are complementary. The UNS carries the live values. The knowledge graph tells you what those values mean
-together. One common way to put it: a UNS is for people, and a knowledge graph is for software.
+together. One way to put it: the UNS answers *what is the value now?*, and the knowledge graph answers *what does it
+belong to, and what does it affect?*
 
 As most teams build it, a UNS holds only the **latest** value, and the history is stored somewhere else:
 see [Where the history goes](optional/where-the-history-goes.md). Some people use "UNS" for the whole

@@ -1,6 +1,6 @@
 # 3. An open API
 
-*About 3 minutes. Facts on this page were checked against the linked sources in October 2026.*
+*About 3 minutes. Facts on this page were checked against the linked sources in October 2026. Unfamiliar terms are explained in the [glossary](optional/references.md#glossary).*
 
 ## The idea
 
@@ -102,7 +102,8 @@ The first answer says what each thing is (its type), where it sits (its parent) 
 relationship). That is the context an assistant needs, and it never had to guess from a tag name. Units and
 other details come back as metadata when a request asks for them. The
 [implementation guide](https://github.com/cesmii/i3X/blob/1.0/spec/IMPLEMENTATION_GUIDE.md) has the full
-request and response definitions.
+request and response definitions. Its header still reads "Release Candidate" and expands i3X slightly
+differently; CESMII's [1.0 announcement](https://www.cesmii.org/cesmii-releases-i3x-1-0/) uses the name above.
 
 ## Why an open API matters
 

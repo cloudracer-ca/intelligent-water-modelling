@@ -56,8 +56,8 @@ makes it compact and quick to analyse.
 
 ## Why not an ordinary database?
 
-Many SCADA systems store history in a general-purpose SQL database. It works well at first. As the tables grow
-past a year or so of data, the indexes become hard to maintain and reading a long trend becomes slow.
+Many SCADA systems store history in a general-purpose SQL database. It works well at first. As the tables grow,
+they need care: indexes, partitioning and archiving. Without it, reading a long trend can become slow.
 
 Time-series databases are built for this shape of data. They split it by time, compress it, and compute
 averages without reading every row.

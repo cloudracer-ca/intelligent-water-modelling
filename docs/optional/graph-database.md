@@ -26,6 +26,6 @@ What matters most at the start is that the graph is **correct and can be rebuilt
 A graph database earns its place as the graph grows and more people need to query it. For most teams that is a
 later decision. It does not have to be the first one.
 
-See also: [Root cause and anomaly detection, without guessing](root-cause-and-anomaly-detection.md), which compares the three options for that use.
+See also: [Root cause and anomaly detection, without guessing](root-cause-and-anomaly-detection.md), which sets out three ways to build that use.
 
 Next: [References](references.md).

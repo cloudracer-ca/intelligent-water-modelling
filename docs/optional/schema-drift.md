@@ -17,7 +17,8 @@ Someone adds a transmitter, renames a tag or removes a pump at the controller, a
 
 It is hard to see for two reasons.
 
-- **The source does not announce it.** A controller or OPC UA server does not broadcast that its tags changed.
+- **The source usually does not announce it.** A controller or OPC UA server usually does not tell anyone that
+  its tags changed, and few tools listen if it does.
 - **The missing data is silent.** A tag that is not in the model is never published, so nothing downstream
   shows an error. It is simply absent.
 

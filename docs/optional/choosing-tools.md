@@ -73,7 +73,7 @@ workshop kit.
 | 6 | Does it accept types from a published standard? | Yes, and we imported one |
 | 7 | When a type changes, do existing assets follow? | Automatically, or with one reviewed step |
 | 8 | What does it keep when the link drops, and whose timestamp does it use? | It stores and forwards, with the time the value was measured |
-| 9 | Does it send a value when it changes, or only on a timer? | When it changes |
+| 9 | Does it send a value when it changes, or only on a timer? | When it changes by more than a set amount (a deadband), plus a periodic refresh so that silence is never mistaken for a steady value |
 | 10 | How do people and systems sign in, how is it patched, and how are its flaws made known? | Our own sign-in system, a stated patch schedule, and a public record of fixed flaws |
 | 11 | If it has an assistant, what leaves our network when it is used? | Stated exactly, and the assistant can be switched off |
 | 12 | Can everything we put in come back out in an open format? | Yes, complete, and we tested rebuilding from it |

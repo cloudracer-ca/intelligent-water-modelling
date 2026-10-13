@@ -1,6 +1,6 @@
 # 2. What a model looks like
 
-*About 3 minutes.*
+*About 5 minutes. Unfamiliar terms are explained in the [glossary](optional/references.md#glossary).*
 
 A model is a few text files. People can read them, review them and keep them in version control.
 
@@ -8,8 +8,8 @@ There are three examples, all invented:
 
 - [starter-model.yaml](../examples/starter-model.yaml): one file of about 30 lines. **Start here.** Copy it and
   replace the names with your own.
-- [example-plant/](../examples/example-plant/): a fuller drinking-water model of 18 pieces of equipment, in
-  three files. It shows where a starter model grows to.
+- [example-plant/](../examples/example-plant/): a fuller drinking-water model of 18 assets (nine of them
+  equipment), in three files. It shows where a starter model grows to.
 - [example-wastewater/](../examples/example-wastewater/): a wastewater model that reuses the same types and
   adds a few of its own.
 
@@ -104,7 +104,8 @@ Each line is a plain sentence: the compressor supplies air to the surge vessel; 
 Together they are the knowledge graph.
 
 **Records** link equipment to its documents: the procedure that governs it, the drawing it appears on. The
-model holds a pointer and a revision, never the document itself.
+model holds a pointer to each record and the facts that matter here (a drawing's revision, a work order's
+status), never the document itself.
 
 ## File 3: the bindings
 
@@ -135,13 +136,15 @@ flowchart LR
 ```
 
 A small program, often called a model compiler, can read the model and write the configuration for every tool. Nothing is typed
-twice. [One value, followed through](optional/one-value-followed-through.md) shows this for a single value.
+twice. This repository does not include one: [One value, followed through](optional/one-value-followed-through.md)
+shows what one would write for a single value.
 
 Three things to remember:
 
 - **The model is checked before anything is generated,** and a change is reviewed by a person
   ([how](optional/keeping-the-model-honest.md#reviewing-changes)).
-- **The broker's rules come from the model,** so a message that is not in the model is refused.
+- **The broker's rules can come from the model.** Once they are generated from it, a message that is not in
+  the model is refused.
 - **How you write the model is your choice; what you generate should follow standards** wherever one exists
   ([which ones](optional/one-value-followed-through.md#standards-your-outputs-can-follow)).
 
