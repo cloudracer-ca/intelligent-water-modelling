@@ -26,6 +26,9 @@ flowchart LR
   B -->|no| R["Refused<br/>and counted"]
 ```
 
+Think of the broker as a gatekeeper for meaning. A firewall refuses traffic that does not match its rules;
+a governed broker refuses a message that does not match the model.
+
 The result is that this kind of error becomes far less likely, and visible when it does happen. A bad message
 is stopped early, and the count of refusals tells you something upstream needs attention.
 

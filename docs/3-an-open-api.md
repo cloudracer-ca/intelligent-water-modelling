@@ -58,6 +58,52 @@ These are the kinds of question i3X defines. Any open API for this purpose needs
 The example model was laid out to match these
 ([how the three files line up](optional/one-value-followed-through.md#how-the-three-files-line-up-with-an-open-api)).
 
+## What a question and its answer look like
+
+Two questions about the wet well in the [wastewater example](../examples/example-wastewater/), in the shape
+i3X 1.0 uses. Paths are relative to the server's address; the names are illustrative.
+
+**What does the wet well feed?**
+
+```http
+POST /v1/objects/related
+{ "elementIds": ["WET_WELL"], "relationshipType": "Feeds" }
+```
+
+```json
+{ "success": true,
+  "results": [ { "success": true, "elementId": "WET_WELL",
+    "result": [
+      { "sourceRelationship": "Feeds",
+        "object": { "elementId": "SP_01", "displayName": "Sewage pump 1",
+                    "typeElementId": "Pump", "parentId": "PUMPING",
+                    "isComposition": false, "isExtended": false } },
+      { "sourceRelationship": "Feeds",
+        "object": { "elementId": "SP_02", "displayName": "Sewage pump 2",
+                    "typeElementId": "Pump", "parentId": "PUMPING",
+                    "isComposition": false, "isExtended": false } } ] } ] }
+```
+
+**What is the wet well level now?**
+
+```http
+POST /v1/objects/value
+{ "elementIds": ["WET_WELL_LEVEL"] }
+```
+
+```json
+{ "success": true,
+  "results": [ { "success": true, "elementId": "WET_WELL_LEVEL",
+    "result": { "isComposition": false, "value": 4.1, "quality": "Good",
+                "timestamp": "2026-10-27T17:12:05.000Z" } } ] }
+```
+
+The first answer says what each thing is (its type), where it sits (its parent) and how it connects (the
+relationship). That is the context an assistant needs, and it never had to guess from a tag name. Units and
+other details come back as metadata when a request asks for them. The
+[implementation guide](https://github.com/cesmii/i3X/blob/1.0/spec/IMPLEMENTATION_GUIDE.md) has the full
+request and response definitions.
+
 ## Why an open API matters
 
 - **Less lock-in.** You can change the product underneath without rewriting what sits on top.

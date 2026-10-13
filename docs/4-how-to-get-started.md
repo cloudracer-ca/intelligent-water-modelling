@@ -43,6 +43,12 @@ it, and one answer that used to live in someone's head.
 You do not need a complete model of everything. Start small and extend it as each new question needs. The
 common trap is trying to model the whole plant before answering one question; that work rarely finishes.
 
+## Which data first
+
+This is about all your operations data, not only SCADA. Most teams start with what they already trust: SCADA
+values and the historian. The lab system, maintenance and GIS join later, one at a time. Each connects once to
+the same namespace and reuses the same types, so adding one does not mean redoing the others.
+
 ## People and ownership
 
 The technology is the smaller part.
