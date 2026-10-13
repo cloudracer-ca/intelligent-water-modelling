@@ -7,7 +7,8 @@
 #
 # In a real model, never share this file outside your organisation: addresses are sensitive.
 
-change: {date: 2026-10-10, approvedBy: Integration lead, typesVersion: 0.3.0,
+# The change record. It names both type versions it was checked against: the shared file and the local one.
+change: {date: 2026-10-10, approvedBy: Integration lead, typesVersion: {shared: 0.2.0, local: 0.3.0},
          reason: "Bind the new pump alarms and currents, the high-high level alarm and the screen differential level"}
 
 # Measurement topics follow the pattern

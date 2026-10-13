@@ -10,7 +10,8 @@
 #
 # Who would own it: asset management, with wastewater operations. It changes when the plant changes.
 
-change: {date: 2026-10-10, approvedBy: Operations manager, typesVersion: 0.3.0,
+# The change record. It names both type versions it was checked against: the shared file and the local one.
+change: {date: 2026-10-10, approvedBy: Operations manager, typesVersion: {shared: 0.2.0, local: 0.3.0},
          reason: "Add pump fail-to-start alarms and motor currents, a high-high level alarm, a screen differential level, and grit removal and primary settling between the screen and the aeration basin"}
 
 # ------------------------------------------------------------------------------------------------ assets

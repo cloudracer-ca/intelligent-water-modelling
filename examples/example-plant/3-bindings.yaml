@@ -13,8 +13,8 @@
 # In a real model, never share this file outside your organisation: addresses are sensitive.
 
 # The change record for this file.
-change: {date: 2026-10-01, approvedBy: Integration lead, typesVersion: 0.2.0,
-         reason: "Recorded the source unit for Zone A pressure"}
+change: {date: 2026-10-09, approvedBy: Integration lead, typesVersion: 0.2.0,
+         reason: "Re-checked against types 0.2.0; no address changed"}
 
 # Measurement topics follow the pattern
 #   example/telemetry/water/{site}/{area}/{asset}/{key}

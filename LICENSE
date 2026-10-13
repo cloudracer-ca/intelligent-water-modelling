@@ -2,8 +2,8 @@ Licensing of this repository
 
 This repository is licensed under two licences, by directory:
 
-  * All documentation and prose — README.md, AGENTS.md, llms.txt, CONTRIBUTING.md, SECURITY.md and
-    everything under docs/ — is licensed under the Creative Commons Attribution 4.0 International licence
+  * All documentation and prose — README.md, CONTRIBUTING.md, SECURITY.md and everything
+    under docs/ — is licensed under the Creative Commons Attribution 4.0 International licence
     (CC BY 4.0). The legal code is at:
 
         https://creativecommons.org/licenses/by/4.0/legalcode
@@ -15,10 +15,10 @@ This repository is licensed under two licences, by directory:
 
         "intelligent-water-modelling, cloudracer-ca contributors, CC BY 4.0"
 
-  * Everything under examples/ — the example model, its JSON Schema, the scripts and the derived files — is
-    licensed under the MIT License. The full text is in examples/LICENSE.
+  * Everything under examples/ — the example models, the starter model and the workshop kit, including its
+    spreadsheets — is licensed under the MIT License. The full text is in examples/LICENSE.
 
 Copyright (c) 2026 cloudracer-ca contributors.
 
 The material is provided as is, without warranty of any kind; see each licence for its terms. Nothing in this
-repository describes a real facility, system or person.
+repository describes a real facility or system, and no person or organisation named in it endorses it.
