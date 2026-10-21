@@ -1,0 +1,163 @@
+# Example Water Utility, file 1 of 3: THE TYPES (the rule book).
+#
+# This file is a LEARNING EXAMPLE. Every name, identifier, tag, topic and value in it is invented for this
+# repository. It does not describe any real plant, utility, equipment, control system or address.
+#
+# What this file holds: which kinds of things may exist, which units and states are allowed, and which
+# relationships may join what. It says nothing about any particular plant.
+#
+# Who would own it: a cross-department standards group. It changes rarely.
+# The other two files: 2-plant.yaml (what you have) and 3-bindings.yaml (where each value lives).
+#
+# Before you invent a type, check whether a published standard already defines it (see
+# docs/optional/references.md, "Where to find ready-made types").
+
+model:
+  id: example-water-utility
+  version: 0.2.0
+  classification: synthetic
+  # The change record: who approved this version of the file, when, and why. A role, not a person's name.
+  change: {date: 2026-10-09, approvedBy: Standards lead,
+           reason: "Added SuppliesAir, so that air and the process stream are separate relationships"}
+  description: >-
+    One water path for a learning example: a treatment plant (two filters, a clearwell, two high-lift pumps with a
+    surge vessel), one transmission main, one reservoir-and-pumping station and one pressure zone. Everything is
+    invented.
+
+# The namespace gives the types a unique address, so a `Pump` from this model is never confused with a `Pump`
+# from another. It belongs with the types, because a namespace scopes types, not individual assets.
+namespace:
+  uri: https://example.org/example-water/
+  displayName: Example Water Utility (synthetic)
+
+units:
+  NTU: {quantity: turbidity, description: Nephelometric turbidity units}
+  kPa: {quantity: pressure, description: Kilopascal (gauge)}
+  psi: {quantity: pressure, description: Pounds-force per square inch (gauge); a source unit, converted at the edge}
+  L/s: {quantity: volumetric flow, description: Litres per second}
+  m: {quantity: level, description: Metres}
+  "%": {quantity: ratio, description: Percent}
+
+# ------------------------------------------------------------------------------------------------ types
+# Four abstract classes. Every concrete type extends exactly one class, directly or through another type.
+#
+# `extends` is inheritance: a type gets everything its parent has, and may add to it. A rule written for
+# Equipment therefore applies to every Pump, Filter and Main.
+#
+# `expects` says what every member of a type must have. Every Pump must have a run state and a trip alarm.
+# A type that extended Pump would inherit that, and could expect more.
+#
+# `displayName` is the readable name a tool shows. `description` says what the type means.
+#
+# Two fields record where a type comes from:
+#   `follows`    - the example really does follow this published standard.
+#   `checkFirst` - a published standard exists that a real model should start from. This example did not.
+# A type with neither field is this example's own invention. A reviewer may fairly ask why.
+types:
+  Location: {displayName: Location, abstract: true, description: "A place: a site, a linear network, or a hydraulic region"}
+  Function: {displayName: Function, abstract: true, description: "A named slot in the site -> area -> equipment tree"}
+  # Note: the plant file's `assets:` section lists every named thing (sites, areas, equipment). `Asset` here is
+  # narrower: one class of type, for installed items with their own identity, such as an instrument.
+  Asset: {displayName: Asset, abstract: true, description: "A physical thing with its own identity, installed at one Function"}
+  Record: {displayName: Record, abstract: true, description: "An operational document: a procedure, a work order, a sample"}
+
+  # Location
+  Site: {displayName: Site, extends: Location, description: "ISA-95 site: a plant or a station", follows: "ISA-95 equipment hierarchy"}
+  Network: {displayName: Network, extends: Location, description: "A linear network (transmission mains) operated as one place"}
+  PressureZone: {displayName: Pressure zone, extends: Location, description: "A hydraulic pressure zone; sits beside the tree, not in it"}
+
+  # Function
+  Area: {displayName: Area, extends: Function, description: "ISA-95 area: a process area of a site", follows: "ISA-95 equipment hierarchy"}
+  Equipment: {displayName: Equipment, extends: Function, abstract: true, description: "A position in an area",
+              checkFirst: "ISA-95 equipment hierarchy (the levels below area)"}
+  Filter: {displayName: Filter, extends: Equipment, description: "A gravity media filter"}
+  Reservoir: {displayName: Reservoir, extends: Equipment, description: "A storage cell, clearwell or reservoir",
+              expects: {measurements: [Level]}, checkFirst: "Smart Data Models for water"}
+  Pump: {displayName: Pump, extends: Equipment, description: "A pump POSITION (duty role, run state, speed)",
+         expects: {events: [PumpRunState, PumpTripAlarm]},
+         checkFirst: "OPC 40223, OPC UA for Pumps and Vacuum Pumps"}
+  SurgeVessel: {displayName: Surge vessel, extends: Equipment, description: "An air-cushioned surge vessel on a pump discharge"}
+  Compressor: {displayName: Compressor, extends: Equipment, description: "An air compressor that keeps a surge vessel charged"}
+  Main: {displayName: Main, extends: Equipment, description: "A section of transmission main between two places",
+         expects: {measurements: [Pressure], events: [MainState]}, checkFirst: "Smart Data Models for water"}
+
+  # Asset
+  # `verifyEvery` is how often an instrument must be checked against a reference. The date of the last check
+  # is a fact, not a rule, so it is not written here: it is looked up (see `lookups` in 3-bindings.yaml).
+  Instrument: {displayName: Instrument, extends: Asset, description: "An online analyzer or transmitter", verifyEvery: 6 months,
+               checkFirst: "ISA-5.1, instrument symbols and identification"}
+
+  # Record
+  WorkOrder: {displayName: Work order, extends: Record, description: "A maintenance work order (evidence)"}
+  Procedure: {displayName: Procedure, extends: Record, description: "A standard operating procedure (intent)"}
+  Drawing: {displayName: Drawing, extends: Record, description: "An engineering drawing (design)"}
+  VerificationRecord: {displayName: Verification record, extends: Record, description: "Proof that an instrument was calibrated or verified"}
+
+# `quality` writes down what a believable value looks like, so it can be checked. All numbers are invented.
+#   range          - the lowest and highest believable values
+#   staleAfter     - how long without an update before the value is treated as stale
+#   flatlineAfter  - how long without ANY change before a stuck sensor is suspected
+#   maxChangePerMinute - the fastest believable change
+# A failed check marks the value as suspect. It does not delete it.
+measurementTypes:
+  Turbidity: {description: Water turbidity, units: [NTU],
+              quality: {range: [0, 100], staleAfter: 2 min, flatlineAfter: 30 min}}
+  Pressure: {description: Water pressure, units: [kPa],
+             quality: {range: [-100, 1600], staleAfter: 1 min, flatlineAfter: 15 min}}
+  Flow: {description: Volumetric flow rate, units: ["L/s"],
+         quality: {range: [0, 5000], staleAfter: 1 min, flatlineAfter: 15 min}}
+  Level: {description: Liquid level, units: [m],
+          quality: {range: [0, 15], staleAfter: 2 min, flatlineAfter: 60 min, maxChangePerMinute: 0.5}}
+  PumpSpeed: {description: Pump speed, units: ["%"],
+              quality: {range: [0, 100], staleAfter: 1 min}}
+
+eventTypes:
+  PumpRunState:
+    description: Pump run state
+    states: {STOPPED: 0, STARTING: 1, RUNNING: 2}
+  PumpTripAlarm:
+    description: Pump protection trip
+    states: {NORMAL: 0, ACTIVE: 1}
+  FailToStartAlarm:
+    description: A machine was commanded to start and did not
+    states: {NORMAL: 0, ACTIVE: 1}
+  HighTurbidityAlarm:
+    description: Filter effluent turbidity above its alarm limit
+    states: {NORMAL: 0, ACTIVE: 1}
+  SurgeProtectionState:
+    description: Whether the surge vessel can protect the main
+    states: {AVAILABLE: 0, UNAVAILABLE: 1}
+  MainState:
+    description: Operating state of a transmission main section
+    states: {NORMAL: 0, LOW_PRESSURE: 1, ISOLATED: 2}
+
+# In an open API such as i3X, two pairs of relationships are standard and the rest are your own. When exporting:
+#   `PartOf` / `HasPart` map to i3X's HasParent / HasChildren;
+#   an asset HasComponent its measurements, and each measurement is ComponentOf its asset (set
+#   isComposition: true on the owning asset; keep the organisational parentage separate);
+#   the other relationships here (InstalledAt / Hosts and the process ones) stay custom relationship types.
+# Every relationship type names its inverse, its family, whether cycles are forbidden, and which classes or
+# types may appear as source (domain) and target (range).
+relationshipTypes:
+  PartOf: {inverse: HasPart, family: containment, acyclic: true, domain: [Function, Location], range: [Function, Location],
+           description: "Generated from `parent`; never authored"}
+  InstalledAt: {inverse: Hosts, family: installation, acyclic: true, domain: [Asset], range: [Function],
+                description: "Generated from an Asset's `parent`; never authored"}
+  Feeds: {inverse: FedBy, family: flow, acyclic: true, domain: [Function], range: [Function],
+          description: "The process stream (water or sewage) passes from one position to the next"}
+  # Air is kept apart from the process stream. A failed compressor and a failed pump are different kinds of
+  # problem, and software following the graph should be able to tell them apart.
+  SuppliesAir: {inverse: AirSuppliedBy, family: air, acyclic: true, domain: [Function], range: [Function],
+                description: "A compressor or blower supplies air to a vessel or basin"}
+  Supplies: {inverse: SuppliedBy, family: flow, acyclic: true, domain: [Function, Location], range: [PressureZone],
+             description: "A station, a reservoir or a main supplies a pressure zone"}
+  Protects: {inverse: ProtectedBy, family: protection, acyclic: true, domain: [Function], range: [Function],
+             description: "A protective device guards a position (a surge vessel guards a main)"}
+  Monitors: {inverse: MonitoredBy, family: observation, acyclic: true, domain: [Asset], range: [Function],
+             description: "An instrument observes a position"}
+  GovernedBy: {inverse: Governs, family: governance, acyclic: true, domain: [Function], range: [Procedure],
+               description: "A position is operated under a procedure"}
+  ShownOn: {inverse: Shows, family: governance, acyclic: true, domain: [Function], range: [Drawing],
+            description: "A position appears on a drawing"}
+  Concerns: {inverse: SubjectOf, family: governance, acyclic: true, domain: [Record], range: [Function, Asset],
+             description: "A record is about a position or an asset"}

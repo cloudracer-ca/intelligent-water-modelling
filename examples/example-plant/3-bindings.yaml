@@ -1,0 +1,124 @@
+# Example Water Utility, file 3 of 3: THE BINDINGS (where each value lives).
+#
+# This file is a LEARNING EXAMPLE. Every name, identifier, tag, topic and value in it is invented for this
+# repository. It does not describe any real plant, utility, equipment, control system or address.
+#
+# What this file holds: for every measurement and event in 2-plant.yaml, its address in each system: the OPC UA
+# identifier at the source, the historian tag, and the topic it is published on. It also says where each record
+# lives, and what each asset is called in other systems.
+#
+# Who would own it: the automation or SCADA group. It changes when a system is replaced or a tag is
+# renamed, and the other two files do not.
+#
+# In a real model, never share this file outside your organisation: addresses are sensitive.
+
+# The change record for this file.
+change: {date: 2026-10-09, approvedBy: Integration lead, typesVersion: 0.2.0,
+         reason: "Re-checked against types 0.2.0; no address changed"}
+
+# Measurement topics follow the pattern
+#   example/telemetry/water/{site}/{area}/{asset}/{key}
+# A pressure zone sits beside the tree, so ZONE_A has no site or area of its own: its topic uses the invented
+# grouping segments ZONES/DISTRIBUTION (a rule this example chose and wrote down here).
+measurements:
+  FILTER_01_TURBIDITY:
+    opcua:     {identifier: ExampleWtp.Filter01.Turbidity}
+    historian: {tag: EXAMPLE_WTP.FILTER_01.TURBIDITY}
+    mqtt:      {topic: example/telemetry/water/EXAMPLE_WTP/FILTRATION/FILTER_01/TURBIDITY}
+  FILTER_01_FLOW:
+    opcua:     {identifier: ExampleWtp.Filter01.Flow}
+    historian: {tag: EXAMPLE_WTP.FILTER_01.FLOW}
+    mqtt:      {topic: example/telemetry/water/EXAMPLE_WTP/FILTRATION/FILTER_01/FLOW}
+  FILTER_02_TURBIDITY:
+    opcua:     {identifier: ExampleWtp.Filter02.Turbidity}
+    historian: {tag: EXAMPLE_WTP.FILTER_02.TURBIDITY}
+    mqtt:      {topic: example/telemetry/water/EXAMPLE_WTP/FILTRATION/FILTER_02/TURBIDITY}
+  CLEARWELL_LEVEL:
+    opcua:     {identifier: ExampleWtp.Clearwell.Level}
+    historian: {tag: EXAMPLE_WTP.CLEARWELL.LEVEL}
+    mqtt:      {topic: example/telemetry/water/EXAMPLE_WTP/HIGH_LIFT/CLEARWELL/LEVEL}
+  HLP_01_SPEED:
+    opcua:     {identifier: ExampleWtp.Hlp01.Speed}
+    historian: {tag: EXAMPLE_WTP.HLP_01.SPEED}
+    mqtt:      {topic: example/telemetry/water/EXAMPLE_WTP/HIGH_LIFT/HLP_01/SPEED}
+  SURGE_VESSEL_LEVEL:
+    opcua:     {identifier: ExampleWtp.SurgeVessel.Level}
+    historian: {tag: EXAMPLE_WTP.SURGE_VESSEL.LEVEL}
+    mqtt:      {topic: example/telemetry/water/EXAMPLE_WTP/HIGH_LIFT/SURGE_VESSEL/LEVEL}
+  MAIN_A_PRESSURE:
+    opcua:     {identifier: TxA.MainA.Pressure}
+    historian: {tag: TX_A.MAIN_A.PRESSURE}
+    mqtt:      {topic: example/telemetry/water/TX_A/MAINS_A/MAIN_A/PRESSURE}
+  RESERVOIR_A_LEVEL:
+    opcua:     {identifier: StationA.ReservoirA.Level}
+    historian: {tag: STATION_A.RESERVOIR_A.LEVEL}
+    mqtt:      {topic: example/telemetry/water/STATION_A/STORAGE_A/RESERVOIR_A/LEVEL}
+  ZONE_A_PRESSURE:
+    # The transmitter reports in psi. The value is converted to kPa once, at the edge, before it is published.
+    opcua:     {identifier: Zones.ZoneA.Pressure, sourceUnit: psi}
+    historian: {tag: ZONES.ZONE_A.PRESSURE}
+    mqtt:      {topic: example/telemetry/water/ZONES/DISTRIBUTION/ZONE_A/PRESSURE}
+
+# Derived values are published in their own topic family, so nobody mistakes a calculation for a measurement.
+# `publisher` is the only service allowed to write to the topic.
+derived:
+  MAIN_A_PRESSURE_AVG_5MIN:
+    historian: {tag: TX_A.MAIN_A.PRESSURE_AVG_5MIN}
+    mqtt:      {topic: example/derived/water/TX_A/MAINS_A/MAIN_A/PRESSURE_AVG_5MIN, publisher: stream-calculator}
+
+# Event topics follow the pattern
+#   example/events/water/{site}/{asset}/{eventType}
+events:
+  FILTER_01_HIGH_TURBIDITY:
+    opcua:     {identifier: ExampleWtp.Filter01.HighTurbidityAlarm}
+    historian: {tag: EXAMPLE_WTP.FILTER_01.HIGH_TURBIDITY_ALARM}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/FILTER_01/HighTurbidityAlarm}
+  HLP_01_RUN:
+    opcua:     {identifier: ExampleWtp.Hlp01.RunState}
+    historian: {tag: EXAMPLE_WTP.HLP_01.RUN_STATE}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/HLP_01/PumpRunState}
+  HLP_01_TRIP:
+    opcua:     {identifier: ExampleWtp.Hlp01.TripAlarm}
+    historian: {tag: EXAMPLE_WTP.HLP_01.TRIP_ALARM}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/HLP_01/PumpTripAlarm}
+  HLP_02_RUN:
+    opcua:     {identifier: ExampleWtp.Hlp02.RunState}
+    historian: {tag: EXAMPLE_WTP.HLP_02.RUN_STATE}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/HLP_02/PumpRunState}
+  HLP_02_TRIP:
+    opcua:     {identifier: ExampleWtp.Hlp02.TripAlarm}
+    historian: {tag: EXAMPLE_WTP.HLP_02.TRIP_ALARM}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/HLP_02/PumpTripAlarm}
+  AIR_COMPRESSOR_FAIL_TO_START:
+    opcua:     {identifier: ExampleWtp.AirCompressor.FailToStartAlarm}
+    historian: {tag: EXAMPLE_WTP.AIR_COMPRESSOR.FAIL_TO_START_ALARM}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/AIR_COMPRESSOR/FailToStartAlarm}
+  SURGE_VESSEL_PROTECTION:
+    opcua:     {identifier: ExampleWtp.SurgeVessel.ProtectionState}
+    historian: {tag: EXAMPLE_WTP.SURGE_VESSEL.PROTECTION_STATE}
+    mqtt:      {topic: example/events/water/EXAMPLE_WTP/SURGE_VESSEL/SurgeProtectionState}
+  MAIN_A_STATE:
+    opcua:     {identifier: TxA.MainA.State}
+    historian: {tag: TX_A.MAIN_A.STATE}
+    mqtt:      {topic: example/events/water/TX_A/MAIN_A/MainState}
+
+# Where each record in 2-plant.yaml lives: the system that owns it, and its identifier there. A real model
+# might also hold a link. Links and file paths are sensitive, so none is shown.
+records:
+  SOP_SURGE_01: {system: documents,   id: SOP-SURGE-01}
+  DWG_HL_001:   {system: documents,   id: DWG-HL-001}
+  WO_0001:      {system: maintenance, id: WO-0001}
+
+# What the same asset is called in other systems. This is what lets a work order or a map feature be joined
+# to the right equipment.
+assetIdentifiers:
+  HLP_01:         {maintenance: EQ-10021, gis: PUMP-0001}
+  AIR_COMPRESSOR: {maintenance: EQ-10034}
+  MAIN_A:         {maintenance: EQ-20007, gis: MAIN-0001}
+  FILTER_01_AIT:  {maintenance: EQ-30012}
+
+# Records that are looked up, not listed. To find the work orders for an asset, ask the maintenance system
+# for that asset's `maintenance` identifier above.
+lookups:
+  WorkOrder: {system: maintenance, by: maintenance}
+  VerificationRecord: {system: maintenance, by: maintenance}

@@ -1,0 +1,118 @@
+# Example Wastewater System, file 2 of 3: THE PLANT (what you have).
+#
+# This file is a LEARNING EXAMPLE. Every name, identifier, tag, topic and value in it is invented for this
+# repository. It does not describe any real plant, utility, equipment, control system or address.
+#
+# The question this model answers: "when the wet well level is high, what should we look at first?"
+# Follow the relationships at the end of the file: the pumps, the forcemain, then the screen downstream.
+#
+# Every type named here is defined in the shared file (../example-plant/1-types.yaml) or in 1-local-types.yaml.
+#
+# Who would own it: asset management, with wastewater operations. It changes when the plant changes.
+#
+# A demonstration station built from this example runs a later revision (a hydraulic-model record, design data and a
+# computed wet well inflow). They are left out here to keep the example small.
+
+# The change record. It names both type versions it was checked against: the shared file and the local one.
+change: {date: 2026-10-21, approvedBy: Operations manager, typesVersion: {shared: 0.2.0, local: 0.3.0},
+         reason: "Set the wet well level's rate-of-change limit for a small wet well, and correct two comments that read too much into a small screen differential and a zero pump current"}
+
+# ------------------------------------------------------------------------------------------------ assets
+assets:
+  # --- the pumping station
+  EXAMPLE_SPS: {type: Site, displayName: Example Sewage Pumping Station, topicSegment: EXAMPLE_SPS}
+  PUMPING: {type: Area, displayName: Wet well and pumps, parent: EXAMPLE_SPS}
+  WET_WELL: {type: WetWell, displayName: Wet well, parent: PUMPING}
+  SP_01: {type: Pump, displayName: Sewage pump 1, parent: PUMPING}
+  SP_02: {type: Pump, displayName: Sewage pump 2, parent: PUMPING}
+
+  # --- the forcemain to the plant
+  COLLECTION_A: {type: Network, displayName: Collection network A, topicSegment: COLL_A}
+  FORCEMAINS_A: {type: Area, displayName: Forcemains, parent: COLLECTION_A}
+  FORCEMAIN_A: {type: Forcemain, displayName: Forcemain A (station to plant), parent: FORCEMAINS_A}
+
+  # --- part of the treatment plant
+  EXAMPLE_WWTP: {type: Site, displayName: Example Wastewater Treatment Plant, topicSegment: EXAMPLE_WWTP}
+  HEADWORKS: {type: Area, displayName: Headworks, parent: EXAMPLE_WWTP}
+  PRIMARY: {type: Area, displayName: Primary treatment, parent: EXAMPLE_WWTP}
+  SECONDARY: {type: Area, displayName: Secondary treatment, parent: EXAMPLE_WWTP}
+  SCREEN_01: {type: Screen, displayName: Inlet screen 1, parent: HEADWORKS}
+  GRIT_01: {type: GritChamber, displayName: Grit chamber 1, parent: HEADWORKS}
+  PRIMARY_01: {type: Clarifier, displayName: Primary settling tank 1, parent: PRIMARY}
+  AERATION_01: {type: AerationBasin, displayName: Aeration basin 1, parent: SECONDARY}
+  BLOWER_01: {type: Blower, displayName: Blower 1, parent: SECONDARY}
+  BLOWER_02: {type: Blower, displayName: Blower 2, parent: SECONDARY}
+  CLARIFIER_01: {type: Clarifier, displayName: Secondary clarifier 1, parent: SECONDARY}
+  AERATION_01_AIT: {type: Instrument, displayName: Aeration basin 1 oxygen probe, parent: AERATION_01}
+
+# ------------------------------------------------------------------------------------------------ records
+# Pointers only. Work orders and verification records are looked up, not listed (see 3-bindings.yaml).
+records:
+  SOP_WW_01:
+    type: Procedure
+    displayName: "SOP-WW-01: response to a high wet well level"
+    revision: "1"
+  DWG_SPS_001:
+    type: Drawing
+    displayName: "DWG-SPS-001: pumping station and forcemain"
+    revision: "B"
+
+# ------------------------------------------------------------------------------------------------ measurements
+measurements:
+  # A small wet well moves fast: with a plan area of a few square metres and an inflow of tens of litres a second,
+  # the level can move more than 1 m a minute filling or drawing down, faster than the Level type's 0.5.
+  WET_WELL_LEVEL:        {asset: WET_WELL,    type: Level,           key: LEVEL,    unit: m,     displayName: Wet well level,
+                          quality: {range: [0, 6], maxChangePerMinute: 1.5}}
+  FORCEMAIN_A_PRESSURE:  {asset: FORCEMAIN_A, type: Pressure,        key: PRESSURE, unit: kPa,   displayName: Forcemain A pressure,
+                          quality: {range: [0, 600]}}   # an illustrative range: forcemain pressure depends on the hydraulic design
+  FORCEMAIN_A_FLOW:      {asset: FORCEMAIN_A, type: Flow,            key: FLOW,     unit: "L/s", displayName: Forcemain A flow}
+  AERATION_01_DO:        {asset: AERATION_01, type: DissolvedOxygen, key: DO,       unit: mg/L,  displayName: Aeration basin 1 dissolved oxygen}
+  # A blinded screen shows here first. Read the differential level alongside the flow and the instrument's quality:
+  # a small differential at zero or low flow does not establish the screen's condition.
+  SCREEN_01_DIFF_LEVEL:  {asset: SCREEN_01,   type: DifferentialLevel, key: DIFF_LEVEL, unit: m, displayName: Inlet screen 1 differential level}
+  # Current indicates the motor is energised, or a start was attempted; it does not prove rotation or flow.
+  # Zero current alone cannot tell a pump that was never called from one that failed to start: read the run
+  # state, the fail-to-start and trip alarms, the current's history and the flow together.
+  SP_01_CURRENT:         {asset: SP_01,       type: MotorCurrent,    key: CURRENT,  unit: A,     displayName: Sewage pump 1 motor current}
+  SP_02_CURRENT:         {asset: SP_02,       type: MotorCurrent,    key: CURRENT,  unit: A,     displayName: Sewage pump 2 motor current}
+
+# ------------------------------------------------------------------------------------------------ events
+events:
+  WET_WELL_HIGH_LEVEL:      {asset: WET_WELL,    type: HighLevelAlarm,   displayName: Wet well high-level alarm}
+  WET_WELL_HIGH_HIGH_LEVEL: {asset: WET_WELL,    type: HighHighLevelAlarm, displayName: Wet well high-high-level alarm}
+  SP_01_RUN:                {asset: SP_01,       type: PumpRunState,     displayName: Sewage pump 1 run state}
+  SP_01_TRIP:               {asset: SP_01,       type: PumpTripAlarm,    displayName: Sewage pump 1 trip alarm}
+  SP_02_RUN:                {asset: SP_02,       type: PumpRunState,     displayName: Sewage pump 2 run state}
+  SP_02_TRIP:               {asset: SP_02,       type: PumpTripAlarm,    displayName: Sewage pump 2 trip alarm}
+  # A pump that is called to run and does not. Without these, a standby that fails to take over looks
+  # the same as a pump that was never asked.
+  SP_01_FAIL_TO_START:      {asset: SP_01,       type: FailToStartAlarm, displayName: Sewage pump 1 fail-to-start alarm}
+  SP_02_FAIL_TO_START:      {asset: SP_02,       type: FailToStartAlarm, displayName: Sewage pump 2 fail-to-start alarm}
+  FORCEMAIN_A_STATE:        {asset: FORCEMAIN_A, type: MainState,        displayName: Forcemain A state}
+  BLOWER_01_FAIL_TO_START:  {asset: BLOWER_01,   type: FailToStartAlarm, displayName: Blower 1 fail-to-start alarm}
+
+# ------------------------------------------------------------------------------------------------ relationships
+relationships:
+  # the sewage path
+  - {source: WET_WELL, type: Feeds, target: SP_01}
+  - {source: WET_WELL, type: Feeds, target: SP_02}
+  - {source: SP_01, type: Feeds, target: FORCEMAIN_A}
+  - {source: SP_02, type: Feeds, target: FORCEMAIN_A}
+  - {source: FORCEMAIN_A, type: Feeds, target: SCREEN_01}
+  # after screening: grit removal, then primary settling, then the aeration basin. Nothing is measured on
+  # these two in this example; they are here so the path is the real one.
+  - {source: SCREEN_01, type: Feeds, target: GRIT_01}
+  - {source: GRIT_01, type: Feeds, target: PRIMARY_01}
+  - {source: PRIMARY_01, type: Feeds, target: AERATION_01}
+  - {source: AERATION_01, type: Feeds, target: CLARIFIER_01}
+  # the air path, kept apart from the sewage path
+  - {source: BLOWER_01, type: SuppliesAir, target: AERATION_01}
+  - {source: BLOWER_02, type: SuppliesAir, target: AERATION_01}
+  # protection: the screen keeps debris out of what follows it
+  - {source: SCREEN_01, type: Protects, target: GRIT_01}
+  # observation
+  - {source: AERATION_01_AIT, type: Monitors, target: AERATION_01}
+  # governance and records
+  - {source: WET_WELL, type: GovernedBy, target: SOP_WW_01}
+  - {source: WET_WELL, type: ShownOn, target: DWG_SPS_001}
+  - {source: FORCEMAIN_A, type: ShownOn, target: DWG_SPS_001}
